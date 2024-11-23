@@ -1,0 +1,89 @@
+import SideBar from "@/components/SideBar";
+import useAuth from "../hooks/useAuth";
+import TaskContainer from "@/components/TaskContainer";
+import { useEffect } from "react";
+import { baseURL } from "@/utils/env";
+import useProjectStore from "@/store/projectStore";
+import useTaskStore from "@/store/taskStore";
+import { Button } from "@/components/ui/button";
+
+const Dashboard = () => {
+  useAuth({ pathname: "/dashboard" });
+  const { setProjects, selectedProject } = useProjectStore();
+  const { setTasks } = useTaskStore();  
+
+  useEffect(() => {
+    const getProjects = async () => {
+      const response = await fetch(`${baseURL}/read_projects`, {
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        throw new Error(`Response status: ${response.status}`);
+      }
+      const json = await response.json();
+
+      json.projects && setProjects(json.projects);
+    };
+
+    getProjects();
+  }, []);
+
+  useEffect(() => {
+    const getTasks = async () => {
+      const response = await fetch(`${baseURL}/read_tasks`, {
+        method: "POST",
+        credentials: "include",
+        body: JSON.stringify({
+          project_id: selectedProject?.id,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Response status: ${response.status}`);
+      }
+      const json = await response.json();
+
+      json.tasks && setTasks(json.tasks);
+    };
+
+    selectedProject && getTasks();
+  }, [selectedProject]);
+  
+  return (
+    <div className="flex">
+      <SideBar />
+      <main className="p-4 w-full">
+        {selectedProject ? (
+          <>
+            <div className="mb-4">
+              <img src="/logo.png" alt="Project Name" width={60} height={60} />
+              <h1 className="font-bold text-xl">{selectedProject?.title}</h1>
+              <h3 className="italic text-sm">{selectedProject?.description}</h3>
+              <hr />
+            </div>
+            <div className="flex gap-8 ps-4 flex-wrap">
+              {selectedProject.statuses ? (
+                selectedProject.statuses.map((status, index) => {
+                  return <TaskContainer key={index} title={status} />;
+                })
+              ) : (
+                <>
+                  <p>There are no status yet</p>
+                  <Button variant='secondary'>Add status</Button>
+                </>
+              )}
+            </div>
+          </>
+        ) : (
+          <p>Select a project</p>
+        )}
+      </main>
+    </div>
+  );
+};
+
+export default Dashboard;
