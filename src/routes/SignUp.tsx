@@ -17,7 +17,7 @@ const SignUp = () => {
     handleSubmit,
     formState: { errors },
   } = useForm<SignUpInputs>();
-  useAuth({ pathname: "/signup" });
+  useAuth();
   const navigate = useNavigate();  
 
   const onSubmit: SubmitHandler<SignUpInputs> = async (data) => {
@@ -44,6 +44,7 @@ const SignUp = () => {
       method="POST"
       onSubmit={handleSubmit(onSubmit)}
       className="flex flex-col gap-4 bg-slate-500 mt-20 mx-auto p-7 w-max text-black opacity-85 rounded-sm"
+      data-testid="form-sign-up"
     >
       <h1 className="text-2xl">Sign up</h1>
       <section>
@@ -98,7 +99,7 @@ const SignUp = () => {
 
       <Button type="submit" className="p-3 rounded-sm">Sign Up</Button>
 
-      <Link to="/login" className="underline">
+      <Link to="/login" className="underline" data-testid="route-login-signup-form">
         Already have an account? Log in.
       </Link>
     </form>

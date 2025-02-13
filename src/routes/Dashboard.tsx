@@ -1,17 +1,17 @@
 import SideBar from "@/components/SideBar";
 import useAuth from "../hooks/useAuth";
-import TaskContainer from "@/components/TaskContainer";
 import { useEffect } from "react";
 import { baseURL } from "@/utils/env";
 import useProjectStore from "@/store/projectStore";
 import useTaskStore from "@/store/taskStore";
-import { Button } from "@/components/ui/button";
+import StatusArea from "@/components/StatusArea";
 
 const Dashboard = () => {
-  useAuth({ pathname: "/dashboard" });
+  useAuth();
   const { setProjects, selectedProject } = useProjectStore();
-  const { setTasks } = useTaskStore();  
+  const { setTasks } = useTaskStore();
 
+  // Fetch projects
   useEffect(() => {
     const getProjects = async () => {
       const response = await fetch(`${baseURL}/read_projects`, {
@@ -29,6 +29,7 @@ const Dashboard = () => {
     getProjects();
   }, []);
 
+  // Fetch tasks
   useEffect(() => {
     const getTasks = async () => {
       const response = await fetch(`${baseURL}/read_tasks`, {
@@ -52,31 +53,20 @@ const Dashboard = () => {
 
     selectedProject && getTasks();
   }, [selectedProject]);
-  
+
   return (
     <div className="flex">
       <SideBar />
-      <main className="p-4 w-full">
+      <main className="p-4 w-full relative">
         {selectedProject ? (
           <>
-            <div className="mb-4">
+            <div className="mb-4 sticky top-0 left-0">
               <img src="/logo.png" alt="Project Name" width={60} height={60} />
               <h1 className="font-bold text-xl">{selectedProject?.title}</h1>
               <h3 className="italic text-sm">{selectedProject?.description}</h3>
               <hr />
             </div>
-            <div className="flex gap-8 ps-4 flex-wrap">
-              {selectedProject.statuses ? (
-                selectedProject.statuses.map((status, index) => {
-                  return <TaskContainer key={index} title={status} />;
-                })
-              ) : (
-                <>
-                  <p>There are no status yet</p>
-                  <Button variant='secondary'>Add status</Button>
-                </>
-              )}
-            </div>
+            <StatusArea />
           </>
         ) : (
           <p>Select a project</p>

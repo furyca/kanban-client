@@ -4,7 +4,7 @@ import { baseURL } from "@/utils/env";
 import { Button } from "@/components/ui/button";
 
 const DeleteProjectModal = () => {
-  const { setProjects, selectedProject } = useProjectStore();
+  const { setProjects, selectedProject, setSelectedProject } = useProjectStore();
   const { setModal } = useModalStore();
 
   const handleYesClick = async () => {
@@ -25,6 +25,7 @@ const DeleteProjectModal = () => {
       if (json) {
         setProjects([...json.projects]);
         setModal("none");
+        setSelectedProject(null);
       }
     } catch (e: any) {
       console.error(e.message);
@@ -35,11 +36,11 @@ const DeleteProjectModal = () => {
     setModal("none");
   };
   return (
-    <div className="flex flex-col gap-4 rounded-sm bg-slate-500 p-8">
+    <div className="flex flex-col gap-4 rounded-sm bg-slate-500 p-8" data-testid="delete-project-modal">
       <h2>Delete '{selectedProject?.title}'?</h2>
       <div className="flex justify-between">
         <Button onClick={handleNoClick}>NO</Button>
-        <Button className="bg-red-600" onClick={handleYesClick}>
+        <Button className="bg-red-600" onClick={handleYesClick} data-testid="delete-project-confirm">
           YES
         </Button>
       </div>

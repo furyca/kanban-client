@@ -25,8 +25,8 @@ const DeleteTaskModal = () => {
         throw new Error(`Response status: ${response.status}`);
       }
       const json = await response.json();
-      if (json) {        
-        setTasks(json.tasks)
+      if (json) {
+        setTasks(json.tasks);
         setModal("none");
       }
     } catch (e: any) {
@@ -38,11 +38,14 @@ const DeleteTaskModal = () => {
     setModal("none");
   };
   return (
-    <div className="flex flex-col gap-4 rounded-sm bg-slate-500 p-8">
-      <h2>Delete '{activeTask?.title}'?</h2>
+    <div
+      className="flex flex-col justify-between text-center rounded-lg min-h-60 min-w-80 bg-gray-950 border-2 text-slate-200 p-8 shadow-card"
+      data-testid="delete-task-modal"
+    >
+      <h2 className="block mb-2 font-bold text-3xl">Delete '{activeTask?.title}'?</h2>
       <div className="flex justify-between">
-        <Button onClick={handleNoClick}>NO</Button>
-        <Button className="bg-red-600" onClick={handleYesClick}>
+        <Button className="w-20 h-12" onClick={handleNoClick}>NO</Button>
+        <Button className="bg-red-600 w-20 h-12" onClick={handleYesClick} data-testid="delete-task-confirm">
           YES
         </Button>
       </div>

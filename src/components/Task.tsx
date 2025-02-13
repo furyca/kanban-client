@@ -2,35 +2,66 @@ import { Edit, Trash } from "lucide-react";
 import { Button } from "./ui/button";
 import useModalStore from "@/store/modalStore";
 import useTaskStore, { TaskProps } from "@/store/taskStore";
+import { useDraggable } from "@dnd-kit/core";
+import { format } from "date-fns";
 
-const Task = ({ title, description, status, created_at, ...props }: TaskProps) => {
+const Task = ({ id, title, subtasks, status, created_at, index, ...props }: TaskProps) => {
   const { setModal } = useModalStore();
   const { setActiveTask } = useTaskStore();
+  const { attributes, listeners, setNodeRef, transform } = useDraggable({ id });
+  const inputDate = new Date(created_at);
+  const formattedDate = format(inputDate, "d MMM yyyy HH:mm");
+  const style = transform ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` } : undefined;
 
   const openDeleteTaskModal = () => {
-    setActiveTask({ title, description, status, created_at, ...props });
+    setActiveTask({ id, title, subtasks, status, created_at, ...props });
     setModal("delete_task");
   };
   const openEditTaskModal = () => {
-    setActiveTask({ title, description, status, created_at, ...props });
+    setActiveTask({ id, title, subtasks, status, created_at, ...props });
     setModal("update_task");
   };
+
   return (
-    <div className="border-zinc-600 border-2 rounded-lg p-4 w-60">
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...listeners}
+      {...attributes}
+      className="border-zinc-500 border-2 rounded-lg p-2 bg-white/10 cursor-grab select-none"
+      data-testid="task"
+    >
       <div className="flex justify-between items-center">
-        <h3 className="font-bold text-lg">{title}</h3>
+        <h3 className="font-bold truncate">{title}</h3>
         <div className="flex gap-1">
-          <Button variant="ghost" size="sm" onClick={openEditTaskModal}>
-            <Edit />
+          <Button
+            variant="ghost"
+            onClick={openEditTaskModal}
+            data-testid={`open-update-task-modal-${index}`}
+            className="hover:bg-white hover:text-black px-2 py-1"
+          >
+            <Edit className="h-2 w-2" />
           </Button>
-          <Button variant="ghost" size="sm" className="ms-4 text-red-500 bg-transparent" onClick={openDeleteTaskModal}>
-            <Trash />
+          <Button
+            variant="ghost"
+            className="text-red-500 hover:bg-red-800 hover:text-red-100 px-2 py-1"
+            onClick={openDeleteTaskModal}
+            data-testid={`open-delete-task-modal-${index}`}
+          >
+            <Trash className="h-2 w-2" />
           </Button>
         </div>
       </div>
-
-      <p className="mb-2">{description}</p>
-      <p className="mb-2 text-sm">{created_at}</p>
+      {subtasks && subtasks?.length > 0 ? (
+        subtasks.map(({ text, id, completed }) => (
+          <p key={id} className={`mb-2 text-sm line-clamp-3 text-wrap ${completed && "line-through"}`}>
+            - {text}
+          </p>
+        ))
+      ) : (
+        <p className="mb-2 text-sm">No subtasks</p>
+      )}
+      <p className="mb-2 text-xs">{formattedDate}</p>
     </div>
   );
 };

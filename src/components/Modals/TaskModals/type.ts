@@ -1,5 +1,7 @@
+import { SubTaskProps } from "@/store/taskStore";
+
 export type TaskInputs = {
   title: string;
-  description: string;
+  subtasks: SubTaskProps[] | null;
   status: string;
 };

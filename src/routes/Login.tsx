@@ -17,7 +17,7 @@ const Login = () => {
     formState: { errors },
   } = useForm<LoginInputs>();
   const navigate = useNavigate();
-  useAuth({ pathname: "/login" });
+  useAuth();
   const { setUser } = useUserStore();
 
   const onSubmit: SubmitHandler<LoginInputs> = async (data) => {    
@@ -33,7 +33,7 @@ const Login = () => {
           body: JSON.stringify({ ...data }),
         },
       });
-
+      
       json && setUser({ username: json.username, userID: json.sessionID });
       json.redirect && navigate(json.redirect);
     } catch (e: any) {
@@ -45,6 +45,7 @@ const Login = () => {
       method="POST"
       onSubmit={handleSubmit(onSubmit)}
       className="flex flex-col gap-4 bg-slate-500 mt-20 mx-auto p-7 w-max text-black opacity-85 rounded-sm"
+      data-testid="form-log-in"
     >
       <h1 className="text-2xl">Log in</h1>
       <section>
@@ -57,6 +58,7 @@ const Login = () => {
           type="text"
           placeholder="Email"
           {...register("email", { required: true })}
+          data-testid="login-email"
         />
         {errors.email && <span>This field is required</span>}
       </section>
@@ -70,14 +72,14 @@ const Login = () => {
           type="password"
           placeholder="Create a password"
           {...register("password", { required: true })}
+          data-testid="login-password"
         />
         {errors.password && <span>This field is required</span>}
       </section>
 
-      {/* <input type="submit" className="bg-zinc-900 text-blue-50 p-3 rounded-sm cursor-pointer" value='Login'/> */}
-      <Button type="submit" className="p-3 rounded-sm">Sign Up</Button>
+      <Button type="submit" className="p-3 rounded-sm" data-testid="login-button">Log in</Button>
 
-      <Link to="/signup" className="underline">
+      <Link to="/signup" className="underline" data-testid="route-signup-login-form">
         Don't have an account? Sign up.
       </Link>
       <Link to="" className="underline">

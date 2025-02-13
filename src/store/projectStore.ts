@@ -5,7 +5,8 @@ export interface ProjectProps {
   title: string;
   description: string;
   created_at?: string;
-  statuses: string[]
+  statuses: string[];
+  index?: number;
 }
 
 interface ProjectState {
