@@ -4,7 +4,7 @@ import ModalRenderer from "@/components/Modals/ModalRenderer";
 
 export default function Root() {
   return (
-    <div className="bg-gray-900 min-h-dvh text-gray-200 p-0 overflow-x-hidden">
+    <div className="bg-gradient-to-br from-[#0f0c29] via-[#302b63] to-[#24243e] h-full text-slate-300 p-0 overflow-hidden">
       <NavBar />
       <Outlet />
       <ModalRenderer />

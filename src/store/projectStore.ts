@@ -5,8 +5,14 @@ export interface ProjectProps {
   title: string;
   description: string;
   created_at?: string;
-  statuses: string[];
+  status: StatusState[];
   index?: number;
+}
+
+export interface StatusState {
+  id: string
+  text: string;
+  project_id: string;
 }
 
 interface ProjectState {

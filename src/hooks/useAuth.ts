@@ -8,7 +8,7 @@ const useAuth = () => {
   const location = useLocation();
 
   useEffect(() => {
-    const controller = new AbortController(); // AbortController ile istek iptali
+    const controller = new AbortController();
     const signal = controller.signal;
     const checkAuth = async () => {
       try {
@@ -24,7 +24,7 @@ const useAuth = () => {
         const data = await response.json();
 
         if (data.redirect) {
-          navigate(data.redirect); // Backend yönlendirme istiyorsa, React Router ile yönlendir
+          navigate(data.redirect);
         }
       } catch (error: any) {
         if (error.name !== "AbortError") {
@@ -35,7 +35,7 @@ const useAuth = () => {
 
     checkAuth();
 
-    return () => controller.abort(); // Component unmount edildiğinde fetch iptal edilir
+    return () => controller.abort();
   }, [location.pathname, navigate]);
 };
 

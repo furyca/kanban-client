@@ -4,6 +4,7 @@ export interface TaskProps {
   id: string;
   title: string;
   created_at: string;
+  updated_at: string;
   projectID: string;
   status: string;
   subtasks: SubTaskProps[] | null;
@@ -22,9 +23,8 @@ interface TaskState {
   setTasks: (tasks: TaskProps[]) => void;
   activeTask: TaskProps | null;
   setActiveTask: (task: TaskProps | null) => void;
-  createTaskDefaultStatus: string;
-  setCreateTaskDefaultStatus: (task: string) => void;
-
+  currentTaskStatus: string | null;
+  setCurrentTaskStatus: (task: string) => void;
 }
 
 const useTaskStore = create<TaskState>()((set) => ({
@@ -32,8 +32,8 @@ const useTaskStore = create<TaskState>()((set) => ({
   setTasks: (tasks) => set(() => ({ tasks })),
   activeTask: null,
   setActiveTask: (task) => set(() => ({ activeTask: task })),
-  createTaskDefaultStatus: '',
-  setCreateTaskDefaultStatus: (status) => set(() => ({ createTaskDefaultStatus: status })),
+  currentTaskStatus: null,
+  setCurrentTaskStatus: (currentStatus) => set(() => ({ currentTaskStatus: currentStatus })),
 }));
 
 export default useTaskStore;

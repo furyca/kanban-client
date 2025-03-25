@@ -25,14 +25,14 @@ const StatusArea = () => {
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 8,
+        distance: 1,
       },
     })
-  );
+  );  
 
   //side scroll
   const SCROLL_SPEED = 10;
-  const handleDragMove = (event: DragMoveEvent) => {
+  const handleDragMove = (event: DragMoveEvent) => {    
     if (!isTaskDragging || !containerRef.current) return;
 
     const { left, right } = containerRef.current.getBoundingClientRect();
@@ -55,6 +55,7 @@ const StatusArea = () => {
 
   const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
     if (!isDragging || activeTask || !containerRef.current) return;
+
     const walk = (e.pageX - startX);
     containerRef.current.scrollLeft = scrollLeft - walk;
   };
@@ -121,12 +122,12 @@ const StatusArea = () => {
     const task = tasks.find((task: TaskProps) => task.id === event.active.id) as TaskProps;
     setActiveTask(task);
   }
-
+  
   return (
     <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd} onDragMove={handleDragMove}>
       <div
         ref={containerRef}
-        className="flex absolute flex-row flex-grow overflow-y-hidden gap-4 overflow-x-auto p-4 w-full h-[calc(100vh-200px)] active:cursor-grabbing select-none"
+        className="flex absolute flex-row flex-grow overflow-y-hidden gap-1 overflow-x-auto p-1 w-full h-[calc(100vh-150px)] active:cursor-grabbing select-none"
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
@@ -135,10 +136,10 @@ const StatusArea = () => {
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
-        {selectedProject?.statuses ? (
+        {selectedProject?.status ? (
           <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd} sensors={sensors}>
-            {selectedProject.statuses.map((status, index) => {
-              return <TaskContainer key={index} index={index} title={status} />;
+            {selectedProject.status.map((status, index) => {
+              return <TaskContainer key={index} index={index} title={status.text} id={status.id} />;
             })}
           </DndContext>
         ) : (

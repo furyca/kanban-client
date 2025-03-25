@@ -1,48 +1,57 @@
 import { Button } from "./ui/button";
-import { Edit, Trash } from "lucide-react";
 import useModalStore from "@/store/modalStore";
 import useProjectStore, { ProjectProps } from "@/store/projectStore";
+import { Pencil2Icon, TrashIcon } from "@radix-ui/react-icons";
 
-const SideBarButton = ({ title, id, description, statuses, index }: ProjectProps) => {
+interface SideBarButtonProps extends ProjectProps {
+  collapsed: boolean;
+}
+
+const SideBarButton = ({ title, id, description, status, index, collapsed }: SideBarButtonProps) => {
   const { setModal } = useModalStore();
   const { selectedProject, setSelectedProject } = useProjectStore();
 
   const openDeleteProjectModal = () => {
     setModal("delete_project");
-    setSelectedProject({ title, id, description, statuses });
+    setSelectedProject({ title, id, description, status });
   };
 
   const openUpdateProjectModal = () => {
     setModal("update_project");
-    setSelectedProject({ title, id, description, statuses });
+    setSelectedProject({ title, id, description, status });
   };
 
   return (
-    <div className="flex items-center justify-between gap-4 bg-zinc-900/50" data-testid="sidebar-project">
-      <Button
-        className={`justify-start bg-zinc-900 px-2 flex-1 w-28 ${selectedProject?.id === id && "bg-white text-black"}`}
-        variant="ghost"
-        onClick={() => setSelectedProject({ title, id, description, statuses })}
-        data-testid={`select-project-${index}`}
-      >
-        <span className="truncate">{title}</span>
-      </Button>
-      <div className="flex gap-1">
-        <Button
-          className="hover:bg-white hover:text-black p-3"
-          onClick={openUpdateProjectModal}
-          data-testid={`open-update-project-modal-${index}`}
-        >
-          <Edit className="h-2 w-2" />
-        </Button>
-        <Button
-          className="text-red-500 hover:bg-red-800 hover:text-red-100 p-3"
-          onClick={openDeleteProjectModal}
-          data-testid={`open-delete-project-modal-${index}`}
-        >
-          <Trash className="h-2 w-2" />
-        </Button>
-      </div>
+    <div
+      className={`flex items-center text-sm cursor-pointer select-none rounded-none p-0 flex-1 group hover:bg-white/10 hover:text-white ${
+        selectedProject?.id === id && "bg-white/30"
+      } ${collapsed ? "justify-center pe-2 mb-1" : "justify-between ps-2"}`}
+      onClick={() => setSelectedProject({ title, id, description, status })}
+      data-testid={`select-project-${index}`}
+    >
+      {collapsed ? (
+        <span className='text-xl font-bold tracking-wider'>{title.length > 1 ? title.substring(0,2) : title[0]}</span>
+      ) : (
+        <span className='truncate'>{title}</span>
+      )}
+      {!collapsed && (
+        <div className={`flex gap-1 transition-all duration-200 ease-in-out opacity-0 group-hover:opacity-100`}>
+          <Button
+            className="px-3 border-none shadow-none rounded-b-none rounded-r-none bg-transparent text-violet-400 hover:bg-violet-600 hover:text-white"
+            onClick={openUpdateProjectModal}
+            data-testid={`open-update-project-modal-${index}`}
+          >
+            <Pencil2Icon />
+          </Button>
+          <Button
+            className="px-3 border-none shadow-none rounded-b-none rounded-r-none bg-transparent text-red-600 hover:bg-red-800 hover:text-white"
+            onClick={openDeleteProjectModal}
+            data-testid={`open-delete-project-modal-${index}`}
+          >
+            <TrashIcon />
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

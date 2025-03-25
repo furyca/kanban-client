@@ -1,14 +1,12 @@
 import useModalStore from "@/store/modalStore";
 import useProjectStore, { ProjectProps } from "@/store/projectStore";
-import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
+import { SubmitHandler, useForm } from "react-hook-form";
 import { baseURL } from "@/utils/env";
-import { Minus, Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { ProjectInputs } from "./type";
+import FormModal from "../Form/FormModal";
 
 const UpdateProjectModal = () => {
   const { setProjects, setSelectedProject, selectedProject } = useProjectStore();
-
   const {
     register,
     handleSubmit,
@@ -16,12 +14,8 @@ const UpdateProjectModal = () => {
     control,
   } = useForm<ProjectInputs>({
     defaultValues: {
-      statuses: selectedProject?.statuses,
+      status: selectedProject?.status,
     },
-  });
-  const { fields, append, remove } = useFieldArray({
-    name: "statuses" as never, //re-check later
-    control,
   });
   const { setModal } = useModalStore();
 
@@ -54,62 +48,27 @@ const UpdateProjectModal = () => {
     }
   };
   return (
-    <form
+    <FormModal
+      form={{
+        id: "update-project-modal",
+        header: "Edit Project",
+        title: "update-project-title",
+        type: "update_project",
+      }}
+      field={{
+        type: "status",
+        label: "Status",
+      }}
+      submit={{
+        id: "update-project-confirm",
+        text: "Update",
+      }}
+      handleSubmit={handleSubmit(onSubmit)}
       method="PUT"
-      onSubmit={handleSubmit(onSubmit)}
-      className="flex flex-col gap-4 rounded-sm bg-slate-500 p-8"
-      data-testid="update-project-modal"
-    >
-      <div className="flex justify-between">
-        <h1 className="text-2xl">Edit Project</h1>
-        <Button variant="destructive" onClick={() => setModal("none")}>
-          X
-        </Button>
-      </div>
-      <section>
-        <label htmlFor="title" className="block text-sm font-medium">
-          Title
-        </label>
-        <input
-          id="title"
-          className="p-3 w-full rounded-sm"
-          type="text"
-          placeholder="Title"
-          defaultValue={selectedProject?.title}
-          data-testid="update-project-title"
-          {...register("title", { required: true, minLength: 3, maxLength: 40 })}
-        />
-        {errors.title && <span>This field is required</span>}
-      </section>
-      <section>
-        <label htmlFor="description" className="block text-sm font-medium">
-          Description
-        </label>
-        <textarea
-          id="description"
-          className="p-3 w-full rounded-sm"
-          placeholder="Type a description"
-          defaultValue={selectedProject?.description}
-          data-testid="update-project-desc"
-          {...register("description", { maxLength: 255 })}
-        />
-      </section>
-      <section className="flex flex-col gap-2">
-        {fields.map((field, index) => (
-          <div className="flex gap-2" key={field.id}>
-            <input className="w-full" {...register(`statuses.${index}`)} data-testid={`update-project-status-${index}`} />
-            <Button variant="destructive" onClick={() => remove(index)} data-testid={`remove-status-button-${index}`}>
-              <Minus />
-            </Button>
-          </div>
-        ))}
-        <Button type="button" onClick={() => append("New Status")} data-testid="add-status-button">
-          <Plus />
-          Add More Status
-        </Button>
-      </section>
-      <input type="submit" className="bg-blue-50 p-3 rounded-sm" value="Update" data-testid="update-project-confirm"/>
-    </form>
+      control={control}
+      register={register}
+      errors={errors}
+    />
   );
 };
 

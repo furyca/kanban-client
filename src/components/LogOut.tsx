@@ -6,7 +6,7 @@ const LogOut = () => {
   const { setModal } = useModalStore();
 
   return (
-    <Button variant="ghost" className="mb-2 text-red-500" onClick={() => setModal("logout")}>
+    <Button variant="ghost" className="mt-2 text-red-500 hover:bg-red-600" onClick={() => setModal("logout")}>
       <ExitIcon />
     </Button>
   );

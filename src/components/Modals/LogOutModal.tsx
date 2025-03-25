@@ -3,11 +3,16 @@ import { Button } from "../ui/button";
 import useUserStore from "@/store/userStore";
 import useModalStore from "@/store/modalStore";
 import sendPostReq from "@/utils/sendPostReq";
+import useClickOutside from "@/hooks/useClickOutside";
+import { LegacyRef } from "react";
+import useProjectStore from "@/store/projectStore";
 
 const LogOutModal = () => {
   const navigate = useNavigate();
   const { clearUser } = useUserStore();
   const { setModal } = useModalStore();
+  const { setSelectedProject } = useProjectStore();
+  const ref = useClickOutside();
 
   const handleLogout = async () => {
     const json = await sendPostReq({
@@ -16,16 +21,24 @@ const LogOutModal = () => {
     });
 
     clearUser();
+    setSelectedProject(null);
     setModal("none");
     json.redirect && navigate(json.redirect);
   };
 
   return (
-    <div className="flex flex-col gap-4 rounded-sm bg-slate-500 p-8">
-      <h2 className="text-center">Log Out?</h2>
-      <div className="flex justify-between gap-4">
-        <Button onClick={() => setModal("none")}>NO</Button>
-        <Button className="bg-red-600" onClick={handleLogout}>YES</Button>
+    <div
+      ref={ref as LegacyRef<HTMLDivElement>}
+      className="flex flex-col justify-between text-center rounded-lg h-72 w-96 bg-gray-950 border-2 text-slate-200 p-8 shadow-card"
+    >
+      <h2 className="block mb-2 font-bold text-3xl">Log Out?</h2>
+      <div className="flex justify-between">
+        <Button className="w-20 h-12" onClick={() => setModal("none")}>
+          NO
+        </Button>
+        <Button className="bg-red-600 w-20 h-12" onClick={handleLogout}>
+          YES
+        </Button>
       </div>
     </div>
   );

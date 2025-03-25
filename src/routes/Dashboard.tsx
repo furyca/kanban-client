@@ -5,6 +5,7 @@ import { baseURL } from "@/utils/env";
 import useProjectStore from "@/store/projectStore";
 import useTaskStore from "@/store/taskStore";
 import StatusArea from "@/components/StatusArea";
+import ProjectSelectionArea from "@/components/ProjectSelectionArea";
 
 const Dashboard = () => {
   useAuth();
@@ -53,23 +54,21 @@ const Dashboard = () => {
 
     selectedProject && getTasks();
   }, [selectedProject]);
-
+  
   return (
-    <div className="flex">
+    <div className="flex h-full">
       <SideBar />
-      <main className="p-4 w-full relative">
+      <main className="w-full relative">
         {selectedProject ? (
           <>
-            <div className="mb-4 sticky top-0 left-0">
-              <img src="/logo.png" alt="Project Name" width={60} height={60} />
+            <div className="sticky top-0 left-0 border-b border-slate-600 p-2 h-24">
               <h1 className="font-bold text-xl">{selectedProject?.title}</h1>
-              <h3 className="italic text-sm">{selectedProject?.description}</h3>
-              <hr />
+              <h3 className="italic text-xs tracking-wide max-w-96 line-clamp-3">{selectedProject?.description}</h3>
             </div>
             <StatusArea />
           </>
         ) : (
-          <p>Select a project</p>
+          <ProjectSelectionArea />
         )}
       </main>
     </div>
