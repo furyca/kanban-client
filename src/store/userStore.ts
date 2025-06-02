@@ -2,8 +2,9 @@ import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
 interface UserProps {
-  userID: string;
   username: string;
+  id: string;
+  email: string;
 }
 
 interface UserState {

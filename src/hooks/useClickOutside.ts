@@ -18,6 +18,21 @@ const useClickOutside = () => {
       document.removeEventListener("mouseup", handleClickOutside);
     };
   }, [container]);
+
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (container.current && e.key === "Escape") {
+        setModal("none");
+      }
+    };
+
+    document.addEventListener("keyup", handleEscape);
+
+    return () => {
+      document.removeEventListener("keyup", handleEscape);
+    };
+  }, [container]);
+
   return container;
 };
 

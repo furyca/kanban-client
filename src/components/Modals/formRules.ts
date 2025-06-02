@@ -9,10 +9,14 @@ export const titleRules: RegisterOptions<TaskInputs | ProjectInputs, "title"> = 
   validate: (value) => value.trim().length > 0,
 };
 
-export const subtaskNstatusRules: RegisterOptions<
-  TaskInputs | ProjectInputs,
-  `subtasks.${number}.text` | `status.${number}.text`
-> = {
+export const statusRules: RegisterOptions<ProjectInputs, `status.${number}.text`> = {
+  required: true,
+  minLength: 1,
+  maxLength: 255,
+  validate: (value) => value.trim().length > 0,
+};
+
+export const subtaskRules: RegisterOptions<TaskInputs, `subtasks.${number}.text`> = {
   required: true,
   minLength: 1,
   maxLength: 255,
@@ -21,4 +25,5 @@ export const subtaskNstatusRules: RegisterOptions<
 
 export const descRules: RegisterOptions<ProjectInputs, "description"> = {
   maxLength: 255,
+  validate: (value) => value.trim().length < 256,
 };

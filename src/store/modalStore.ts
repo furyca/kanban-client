@@ -8,7 +8,9 @@ export type ModalState =
   | "delete_task"
   | "create_task"
   | "update_task"
-  | "logout";
+  | "logout"
+  | "add_status"
+  | "remove_status"
 
 interface ModalStore {
   modal: ModalState;

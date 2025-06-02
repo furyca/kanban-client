@@ -12,7 +12,7 @@ export interface TaskProps {
 }
 
 export interface SubTaskProps {
-  id: string;
+  subtask_id?: string;
   task_id: string;
   text: string;
   completed: boolean;
@@ -25,6 +25,12 @@ interface TaskState {
   setActiveTask: (task: TaskProps | null) => void;
   currentTaskStatus: string | null;
   setCurrentTaskStatus: (task: string) => void;
+  loadingTasks: boolean;
+  setLoadingTasks: (loading: boolean) => void;
+  subtaskRemovalList: string[];
+  addSubtaskRemovalList: (id: string) => void;
+  removeSubtaskRemovalList: (id: string) => void;
+  clearSubtaskRemovalList: () => void;
 }
 
 const useTaskStore = create<TaskState>()((set) => ({
@@ -34,6 +40,13 @@ const useTaskStore = create<TaskState>()((set) => ({
   setActiveTask: (task) => set(() => ({ activeTask: task })),
   currentTaskStatus: null,
   setCurrentTaskStatus: (currentStatus) => set(() => ({ currentTaskStatus: currentStatus })),
+  loadingTasks: false,
+  setLoadingTasks: (loading) => set(() => ({ loadingTasks: loading })),
+  subtaskRemovalList: [],
+  addSubtaskRemovalList: (id) => set((state) => ({ subtaskRemovalList: [...state.subtaskRemovalList, id] })),
+  removeSubtaskRemovalList: (id) =>
+    set((state) => ({ subtaskRemovalList: state.subtaskRemovalList.filter((subtaskId) => subtaskId !== id) })),
+  clearSubtaskRemovalList: () => set(() => ({ subtaskRemovalList: [] })),
 }));
 
 export default useTaskStore;

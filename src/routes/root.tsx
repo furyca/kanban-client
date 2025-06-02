@@ -1,6 +1,6 @@
 import { Outlet } from "react-router-dom";
-import NavBar from "../components/NavBar";
 import ModalRenderer from "@/components/Modals/ModalRenderer";
+import NavBar from "@/components/Nav/NavBar";
 
 export default function Root() {
   return (

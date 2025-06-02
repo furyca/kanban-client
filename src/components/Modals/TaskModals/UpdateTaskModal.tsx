@@ -1,85 +1,71 @@
-import useModalStore from "@/store/modalStore";
-import { SubmitHandler, useForm } from "react-hook-form";
-import { baseURL } from "@/utils/env";
-import useProjectStore from "@/store/projectStore";
 import useTaskStore from "@/store/taskStore";
+import { FormProvider, useForm } from "react-hook-form";
 import { TaskInputs } from "./type";
-import FormModal from "../Form/FormModal";
+import useModalStore from "@/store/modalStore";
+import useProjectStore from "@/store/projectStore";
+import useClickOutside from "@/hooks/useClickOutside";
+import { LegacyRef, useEffect } from "react";
+import FormHeader from "../FormSections/FormHeader";
+import TitleSection from "../FormSections/TitleSection";
+import SubtaskField from "../FormSections/SubtaskField";
+import SelectStatusSection from "../FormSections/SelectStatusSection";
+import SubmitButton from "../FormElements/SubmitButton";
+import useFormSubmit from "@/hooks/useFormSubmit";
 
 const UpdateTaskModal = () => {
-  const { activeTask, setTasks, setActiveTask } = useTaskStore();
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    control,
-  } = useForm<TaskInputs>({
+  const { activeTask, setTasks, setActiveTask, subtaskRemovalList, clearSubtaskRemovalList } = useTaskStore();
+  const methods = useForm<TaskInputs>({
     defaultValues: {
       subtasks: activeTask?.subtasks || [],
     },
   });
+  const ref = useClickOutside();
   const { setModal } = useModalStore();
   const { selectedProject } = useProjectStore();
+  const { onSubmit, res, loading } = useFormSubmit({
+    url: "/update_task",
+    method: "PUT",
+    buildBody: (data) => ({
+      id: activeTask?.id,
+      project_id: selectedProject?.id,
+      removalList: subtaskRemovalList,
+      ...data,
+    }),
+  });  
 
-  const onSubmit: SubmitHandler<TaskInputs> = async (data) => {
-    if (data.subtasks) {
-      data.subtasks.forEach((subtask) => {
-        if (!subtask.hasOwnProperty("task_id")) {
-          subtask.task_id = activeTask?.id as string;
-        }
-      });
+  useEffect(() => {
+    clearSubtaskRemovalList();
+  }, []);
+
+  useEffect(() => {
+    if (res?.tasks) {
+      setTasks(res.tasks);
+      setActiveTask(null);
+      setModal("none");
     }
+  }, [res?.tasks]);
 
-    try {
-      const response = await fetch(`${baseURL}/update_task`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({
-          id: activeTask?.id,
-          project_id: selectedProject?.id,
-          ...data,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Response status: ${response.status}`);
-      }
-
-      const json = await response.json();
-      if (json) {
-        setTasks(json.tasks);
-        setModal("none");
-        setActiveTask(null);
-      }
-    } catch (e: any) {
-      console.error(e.message);
-    }
-  };
   return (
-    <FormModal
-      form={{
-        id: "update-task-modal",
-        header: "Edit Task",
-        title: "update-task-title",
-        type: "update_task",
-      }}
-      field={{
-        type: "subtasks",
-        label: "Subtasks",
-      }}
-      submit={{
-        id: "update-task-confirm",
-        text: "Save",
-      }}
-      handleSubmit={handleSubmit(onSubmit)}
-      method="PUT"
-      control={control}
-      register={register}
-      errors={errors}
-    />
+    <FormProvider {...methods}>
+      <form
+        method="PUT"
+        onSubmit={methods.handleSubmit(onSubmit)}
+        className="flex flex-col rounded-lg h-5/6 w-11/12 md:w-2/3 lg:w-1/2 overflow-auto bg-slate-800 border-2 border-gray-500 text-slate-400 shadow-card"
+        data-testid="update-task-modal"
+        ref={ref as LegacyRef<HTMLFormElement>}
+      >
+        <FormHeader text="Edit Task" />
+        <TitleSection
+          id="update-task-title"
+          label="Title *"
+          message="Title must be between 1-40 characters."
+          form_type="update_task"
+        />
+        <SubtaskField />
+        <SelectStatusSection />
+        <SubmitButton id="update-task-confirm" text="Save" loading={loading} />
+      </form>
+    </FormProvider>
   );
 };
 

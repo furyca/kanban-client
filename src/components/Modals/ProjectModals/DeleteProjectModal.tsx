@@ -1,17 +1,20 @@
 import useProjectStore from "@/store/projectStore";
 import useModalStore from "@/store/modalStore";
 import { baseURL } from "@/utils/env";
-import { Button } from "@/components/ui/button";
 import useClickOutside from "@/hooks/useClickOutside";
-import { LegacyRef } from "react";
-import CloseButton from "../Form/Elements/CloseButton";
+import { LegacyRef, useState } from "react";
+import { LoaderCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const DeleteProjectModal = () => {
+  const [loading, setLoading] = useState(false);
   const { setProjects, selectedProject, setSelectedProject } = useProjectStore();
   const { setModal } = useModalStore();
   const ref = useClickOutside();
 
   const handleYesClick = async () => {
+    setLoading(true);
+
     try {
       const response = await fetch(`${baseURL}/delete_project`, {
         method: "DELETE",
@@ -33,6 +36,8 @@ const DeleteProjectModal = () => {
       }
     } catch (e: any) {
       console.error(e.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -41,24 +46,29 @@ const DeleteProjectModal = () => {
   };
   return (
     <div
-      className="flex flex-col justify-between text-center rounded-lg h-60 w-96 bg-gray-950 border border-slate-400 text-slate-200 p-8 shadow-card"
+      className="flex flex-col justify-between rounded-lg w-60 md:w-96 bg-gray-950 border border-slate-400 text-slate-200 px-2 py-4 shadow-card"
       data-testid="delete-project-modal"
       ref={ref as LegacyRef<HTMLDivElement>}
     >
-      <section className="relative p-8">
-        <h2 className="block font-bold text-2xl truncate">Delete Project '{selectedProject?.title}'?</h2>
-        <CloseButton />
+      <section className="relative p-2">
+        <h2 className="block font-bold text-xl truncate">Delete {selectedProject?.title}?</h2>
       </section>
-      <div className="flex justify-between mt-auto pt-4 px-4">
-        <Button className="h-14 w-24 bg-zinc-700 hover:bg-zinc-800 text-[16px] px-4" onClick={handleNoClick}>
-          NO
+      <div className="flex justify-end gap-2 mt-auto pt-4 px-4 text-center">
+        <Button
+          className="h-10 w-24 bg-zinc-800 hover:bg-zinc-900 text-base rounded-lg"
+          onClick={handleNoClick}
+          disabled={loading}
+        >
+          Cancel
         </Button>
         <Button
-          className="h-14 w-24 bg-red-600 hover:bg-red-800 text-[16px] px-4"
+          className="h-10 w-28 bg-red-600 hover:bg-red-800 text-base font-bold tracking-wide rounded-lg"
           onClick={handleYesClick}
           data-testid="delete-project-confirm"
+          disabled={loading}
         >
-          YES
+          {loading && <LoaderCircle className="animate-spin" />}
+          Yes, delete
         </Button>
       </div>
     </div>

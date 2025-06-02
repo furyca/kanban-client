@@ -9,6 +9,8 @@ import DeleteProjectModal from "./ProjectModals/DeleteProjectModal";
 import CreateProjectModal from "./ProjectModals/CreateProjectModal";
 import UpdateProjectModal from "./ProjectModals/UpdateProjectModal";
 import { Lookup } from "./type";
+import AddStatusModal from "./StatusModals.tsx/AddStatusModal";
+import RemoveStatusModal from "./StatusModals.tsx/RemoveStatusModal";
 
 export const modalLookup: Lookup = {
   none: null,
@@ -19,6 +21,8 @@ export const modalLookup: Lookup = {
   create_task: <CreateTaskModal />,
   update_task: <UpdateTaskModal />,
   logout: <LogOutModal />,
+  add_status: <AddStatusModal />,
+  remove_status: <RemoveStatusModal />,
 };
 
 const ModalRenderer = () => {

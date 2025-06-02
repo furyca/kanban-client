@@ -1,19 +1,22 @@
 import useClickOutside from "@/hooks/useClickOutside";
-import { Button } from "../../ui/button";
 import useModalStore from "@/store/modalStore";
 import useProjectStore from "@/store/projectStore";
 import useTaskStore from "@/store/taskStore";
 import { baseURL } from "@/utils/env";
-import { LegacyRef } from "react";
-import CloseButton from "../Form/Elements/CloseButton";
+import { LegacyRef, useState } from "react";
+import CloseButton from "../FormElements/CloseButton";
+import { LoaderCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const DeleteTaskModal = () => {
+  const [loading, setLoading] = useState(false);
   const ref = useClickOutside();
   const { setModal } = useModalStore();
   const { setTasks, activeTask, setActiveTask } = useTaskStore();
   const { selectedProject } = useProjectStore();
 
   const handleYesClick = async () => {
+    setLoading(true);
     try {
       const response = await fetch(`${baseURL}/delete_task`, {
         method: "DELETE",
@@ -35,6 +38,8 @@ const DeleteTaskModal = () => {
       }
     } catch (e: any) {
       console.error(e.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -44,12 +49,12 @@ const DeleteTaskModal = () => {
   };
   return (
     <div
-      className="flex flex-col text-center rounded-lg h-3/4 w-2/5 bg-[#191735] border text-slate-200 py-4 shadow-card"
+      className="flex flex-col text-center rounded-lg h-3/4 w-11/12 md:w-2/3 lg:w-1/2 2xl:w-2/5 bg-[#191735] border text-slate-200 py-4 shadow-card"
       data-testid="delete-task-modal"
       ref={ref as LegacyRef<HTMLDivElement>}
     >
-      <section className="relative p-8">
-        <h2 className="block font-bold text-2xl">Delete '{activeTask?.title}' task?</h2>
+      <section className={`${window.innerWidth > 768 ? "p-8" : "p-3"} relative`}>
+        <h2 className={`${window.innerWidth > 768 ? "text-2xl" : "text-base"} block font-bold`}>Delete '{activeTask?.title}' task?</h2>
         <CloseButton />
       </section>
       <div className="overflow-auto flex flex-grow flex-col">
@@ -59,7 +64,7 @@ const DeleteTaskModal = () => {
           </>
         ) : (
           <>
-            <h4 className="mb-4 text-base italic tracking-wider sticky top-0 bg-[#191735] p-2 underline underline-offset-2">
+            <h4 className={`${window.innerWidth > 768 ? "text-base mb-4" : "text-sm mb-2"} italic tracking-wider sticky top-0 bg-[#191735] p-2 underline underline-offset-2`}>
               Following subtasks wil be deleted as well!
             </h4>
             <div className="text-start text-base flex flex-col flex-grow p-2 px-4">
@@ -77,14 +82,20 @@ const DeleteTaskModal = () => {
         )}
       </div>
       <div className="flex justify-between mt-auto border-t border-gray-600 pt-4 px-4">
-        <Button className="h-12 bg-zinc-700 hover:bg-zinc-800 text-[16px] px-4" onClick={handleNoClick}>
+        <Button
+          className="h-12 bg-zinc-700 hover:bg-zinc-800 text-[16px] px-4"
+          onClick={handleNoClick}
+          disabled={loading}
+        >
           No, Cancel
         </Button>
         <Button
           className="bg-red-600 h-12 hover:bg-red-800 text-[16px] px-4"
           onClick={handleYesClick}
           data-testid="delete-task-confirm"
+          disabled={loading}
         >
+          {loading && <LoaderCircle className="animate-spin" />}
           Yes, Delete
         </Button>
       </div>

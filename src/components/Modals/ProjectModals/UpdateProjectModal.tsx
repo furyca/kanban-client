@@ -1,74 +1,63 @@
 import useModalStore from "@/store/modalStore";
 import useProjectStore, { ProjectProps } from "@/store/projectStore";
-import { SubmitHandler, useForm } from "react-hook-form";
-import { baseURL } from "@/utils/env";
+import { FormProvider, useForm } from "react-hook-form";
 import { ProjectInputs } from "./type";
-import FormModal from "../Form/FormModal";
+import useClickOutside from "@/hooks/useClickOutside";
+import { LegacyRef, useEffect } from "react";
+import FormHeader from "../FormSections/FormHeader";
+import TitleSection from "../FormSections/TitleSection";
+import SubmitButton from "../FormElements/SubmitButton";
+import DescSection from "../FormSections/DescSection";
+import StatusField from "../FormSections/StatusField";
+import useFormSubmit from "@/hooks/useFormSubmit";
 
 const UpdateProjectModal = () => {
   const { setProjects, setSelectedProject, selectedProject } = useProjectStore();
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    control,
-  } = useForm<ProjectInputs>({
+  const methods = useForm<ProjectInputs>({
     defaultValues: {
       status: selectedProject?.status,
     },
   });
+  const { onSubmit, res, loading } = useFormSubmit({
+    url: "/update_project",
+    method: "PUT",
+    buildBody: (data) => ({
+      id: selectedProject?.id,
+      ...data,
+    }),
+  });
+  const ref = useClickOutside();
   const { setModal } = useModalStore();
 
-  const onSubmit: SubmitHandler<ProjectInputs> = async (data) => {
-    try {
-      const response = await fetch(`${baseURL}/update_project`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({
-          id: selectedProject?.id,
-          ...data,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Response status: ${response.status}`);
-      }
-
-      const json = await response.json();
-      if (json) {
-        setSelectedProject(json.projects.find((project: ProjectProps) => project.id === json.selectedProjectID));
-        setProjects([...json.projects]);
-        setModal("none");
-      }
-    } catch (e: any) {
-      console.error(e.message);
+  useEffect(() => {
+    if (res?.projects) {   
+      setSelectedProject(res.projects.find((project: ProjectProps) => project.id === res.selectedProjectID));
+      setProjects(res.projects);
+      setModal("none");
     }
-  };
+  }, [res?.projects]);
+
   return (
-    <FormModal
-      form={{
-        id: "update-project-modal",
-        header: "Edit Project",
-        title: "update-project-title",
-        type: "update_project",
-      }}
-      field={{
-        type: "status",
-        label: "Status",
-      }}
-      submit={{
-        id: "update-project-confirm",
-        text: "Update",
-      }}
-      handleSubmit={handleSubmit(onSubmit)}
-      method="PUT"
-      control={control}
-      register={register}
-      errors={errors}
-    />
+    <FormProvider {...methods}>
+      <form
+        method="PUT"
+        onSubmit={methods.handleSubmit(onSubmit)}
+        className="flex flex-col rounded-lg h-5/6 w-11/12 md:w-2/3 lg:w-1/2 overflow-auto bg-slate-800 border-2 border-gray-500 text-slate-400 shadow-card"
+        data-testid="update-project-modal"
+        ref={ref as LegacyRef<HTMLFormElement>}
+      >
+        <FormHeader text="Edit Project" />
+        <TitleSection
+          id="update-project-title"
+          label="Title *"
+          message="Title must be between 1-40 characters."
+          form_type="update_project"
+        />
+        <DescSection />
+        <StatusField />
+        <SubmitButton id="update-project-confirm" text="Save" loading={loading} />
+      </form>
+    </FormProvider>
   );
 };
 
