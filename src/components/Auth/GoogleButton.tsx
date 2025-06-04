@@ -18,7 +18,7 @@ const GoogleButton = ({ text }: { text: TextType }) => {
     return 200;
   };
 
-  const handleLoginSuccess = async (credentialResponse: CredentialResponse) => {
+  const handleLoginSuccess = async (credentialResponse: CredentialResponse) => {    
     const response = await fetch(`${baseURL}/googleAuth`, {
       method: "POST",
       headers: {
@@ -28,7 +28,7 @@ const GoogleButton = ({ text }: { text: TextType }) => {
       body: JSON.stringify({ token: credentialResponse.credential }),
     });
 
-    const json = await response.json();
+    const json = await response.json();    
 
     json && setUser({ username: json.user.username, id: json.user.sessionID, email: json.user.email });
     json.redirect && navigate(json.redirect);
@@ -47,6 +47,7 @@ const GoogleButton = ({ text }: { text: TextType }) => {
         shape="pill"
         width={width()}
         text={text}
+        useOneTap
       />
     </div>
   );
