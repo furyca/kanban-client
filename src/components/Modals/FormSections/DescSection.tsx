@@ -13,7 +13,7 @@ const DescSection = () => {
   } = useForm<ProjectInputs>();
 
   return (
-    <section className={`${window.innerWidth > 768 ? "ps-10 pe-6" : "px-2"} py-2`}>
+    <section className="md:ps-10 md:pe-6 px-2 py-2">
       <Label text="Description" forElement="create-project-description" />
       <textarea
         id="create-project-description"

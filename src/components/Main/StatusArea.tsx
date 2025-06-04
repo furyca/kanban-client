@@ -25,6 +25,7 @@ const StatusArea = () => {
   const [scrollLeft, setScrollLeft] = useState(0);
   const [isTaskDragging, setIsTaskDragging] = useState(false);
   const [lockUI, setLockUI] = useState(false);
+  const serverError = useRef<null | string>(null);
   const { tasks, setTasks, activeTask, setActiveTask } = useTaskStore();
   const { selectedProject } = useProjectStore();
   const { setModal } = useModalStore();
@@ -106,8 +107,8 @@ const StatusArea = () => {
         if (!res.ok) throw new Error(`Status: ${res.status}`);
         const json = await res.json();
         setTasks(json.tasks);
-      } catch (err) {
-        console.error("Update error:", err);
+      } catch (err: any) {
+        serverError.current = err.message;
         setTasks(oldTasks); // rollback
       } finally {
         setLockUI(false);

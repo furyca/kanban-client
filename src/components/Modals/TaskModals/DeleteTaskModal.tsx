@@ -3,7 +3,7 @@ import useModalStore from "@/store/modalStore";
 import useProjectStore from "@/store/projectStore";
 import useTaskStore from "@/store/taskStore";
 import { baseURL } from "@/utils/env";
-import { LegacyRef, useState } from "react";
+import { LegacyRef, useRef, useState } from "react";
 import CloseButton from "../FormElements/CloseButton";
 import { LoaderCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,7 @@ const DeleteTaskModal = () => {
   const { setModal } = useModalStore();
   const { setTasks, activeTask, setActiveTask } = useTaskStore();
   const { selectedProject } = useProjectStore();
+  const serverError = useRef<null | string>(null);
 
   const handleYesClick = async () => {
     setLoading(true);
@@ -37,7 +38,7 @@ const DeleteTaskModal = () => {
         setActiveTask(null);
       }
     } catch (e: any) {
-      console.error(e.message);
+      serverError.current = e.message;
     } finally {
       setLoading(false);
     }
@@ -53,8 +54,8 @@ const DeleteTaskModal = () => {
       data-testid="delete-task-modal"
       ref={ref as LegacyRef<HTMLDivElement>}
     >
-      <section className={`${window.innerWidth > 768 ? "p-8" : "p-3"} relative`}>
-        <h2 className={`${window.innerWidth > 768 ? "text-2xl" : "text-base"} block font-bold`}>Delete '{activeTask?.title}' task?</h2>
+      <section className="md:p-8 p-3 relative">
+        <h2 className="md:text-2xl text-base block font-bold">Delete '{activeTask?.title}' task?</h2>
         <CloseButton />
       </section>
       <div className="overflow-auto flex flex-grow flex-col">
@@ -64,7 +65,7 @@ const DeleteTaskModal = () => {
           </>
         ) : (
           <>
-            <h4 className={`${window.innerWidth > 768 ? "text-base mb-4" : "text-sm mb-2"} italic tracking-wider sticky top-0 bg-[#191735] p-2 underline underline-offset-2`}>
+            <h4 className="md:text-base md:mb-4 text-sm mb-2 italic tracking-wider sticky top-0 bg-[#191735] p-2 underline underline-offset-2">
               Following subtasks wil be deleted as well!
             </h4>
             <div className="text-start text-base flex flex-col flex-grow p-2 px-4">

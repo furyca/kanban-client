@@ -6,7 +6,7 @@ import { AvatarIcon, EnvelopeClosedIcon, LockClosedIcon } from "@radix-ui/react-
 import GoogleButton from "@/components/Auth/GoogleButton";
 import { baseURL } from "@/utils/env";
 import { LoaderCircle } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 
 type SignUpInputs = {
@@ -17,6 +17,7 @@ type SignUpInputs = {
 
 const SignUp = () => {
   const [loading, setLoading] = useState(false);
+  const serverError = useRef<null | string>(null);
   const {
     register,
     handleSubmit,
@@ -40,7 +41,7 @@ const SignUp = () => {
 
       json && navigate("/login");
     } catch (e: any) {
-      console.error(e.message);
+      serverError.current = e.message;
     } finally {
       setLoading(false);
     }

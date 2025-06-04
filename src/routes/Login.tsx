@@ -5,7 +5,7 @@ import Label from "@/components/Modals/FormElements/Label";
 import { EnvelopeClosedIcon, LockClosedIcon } from "@radix-ui/react-icons";
 import GoogleButton from "@/components/Auth/GoogleButton";
 import { baseURL } from "@/utils/env";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { LoaderCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -16,6 +16,7 @@ type LoginInputs = {
 
 const Login = () => {
   const [loading, setLoading] = useState(false);
+  const serverError = useRef<null | string>(null);
   const {
     register,
     handleSubmit,
@@ -41,7 +42,7 @@ const Login = () => {
       json && setUser({ username: json.user.username, id: json.user.id, email: json.user.email });
       json.redirect && navigate(json.redirect);
     } catch (e: any) {
-      console.error(e.message);
+      serverError.current = e.message;
     } finally {
       setLoading(false);
     }

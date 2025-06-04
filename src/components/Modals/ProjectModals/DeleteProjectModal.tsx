@@ -2,7 +2,7 @@ import useProjectStore from "@/store/projectStore";
 import useModalStore from "@/store/modalStore";
 import { baseURL } from "@/utils/env";
 import useClickOutside from "@/hooks/useClickOutside";
-import { LegacyRef, useState } from "react";
+import { LegacyRef, useRef, useState } from "react";
 import { LoaderCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -10,6 +10,7 @@ const DeleteProjectModal = () => {
   const [loading, setLoading] = useState(false);
   const { setProjects, selectedProject, setSelectedProject } = useProjectStore();
   const { setModal } = useModalStore();
+  const serverError = useRef<null | string>(null);
   const ref = useClickOutside();
 
   const handleYesClick = async () => {
@@ -35,7 +36,7 @@ const DeleteProjectModal = () => {
         setSelectedProject(null);
       }
     } catch (e: any) {
-      console.error(e.message);
+      serverError.current = e.message;
     } finally {
       setLoading(false);
     }

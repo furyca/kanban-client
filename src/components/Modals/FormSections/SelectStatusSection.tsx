@@ -10,7 +10,7 @@ const SelectStatusSection = () => {
   const { register } = useFormContext<TaskInputs>();
 
   return (
-    <section className={`${window.innerWidth > 768 ? "ps-10 pe-6" : "px-2"} py-2`}>
+    <section className="md:ps-10 md:pe-6 px-2 py-2">
       <Label text="Status" forElement="status" />
       <select
         id="status"

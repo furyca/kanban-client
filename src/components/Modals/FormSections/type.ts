@@ -33,7 +33,7 @@ export type StatusFieldProps = {
 
 export type SubtaskFieldProps = {
   fields: TaskField[];
-  register: any; //UseFormRegister<TaskInputs>;
+  register: any;
   remove: UseFieldArrayRemove;
   errors: SubtaskErrors;
   append: UseFieldArrayAppend<TaskInputs>;
@@ -41,9 +41,7 @@ export type SubtaskFieldProps = {
 
 export type TitleInputProps = {
   id: string;
-  //register: UseFormRegister<TaskInputs | ProjectInputs>;
   label: string;
-  //errors: ErrorProp;
   message: string;
   form_type: FormType;
 };
