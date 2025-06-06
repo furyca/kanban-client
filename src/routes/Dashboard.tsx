@@ -6,16 +6,18 @@ import ProjectSelectionArea from "@/components/Main/ProjectSelectionArea";
 import SideBar from "@/components/SideBar/SideBar";
 import StatusArea from "@/components/Main/StatusArea";
 import ProjectSummary from "@/components/Main/ProjectSummary";
-//import useUserStore from "@/store/userStore";
+import useUserStore from "@/store/userStore";
 
 const Dashboard = () => {
   const { setProjects, selectedProject, setLoadingProjects } = useProjectStore();
   const { setTasks, setLoadingTasks } = useTaskStore();
-  //const { user, clearUser } = useUserStore();
+  const { user, clearUser } = useUserStore();
 
-  // if (user) {
-  //   (!user.username || !user.email || !user.id) && clearUser();
-  // }
+  useEffect(() => {
+    if (user) {
+      (!user.username || !user.email || !user.id) && clearUser();
+    }
+  }, [user]);
 
   // Fetch projects
   useEffect(() => {
