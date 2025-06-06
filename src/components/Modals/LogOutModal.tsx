@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 
 const LogOutModal = () => {
   const [loading, setLoading] = useState(false);
-  //const navigate = useNavigate();
   const { clearUser } = useUserStore();
   const { setModal } = useModalStore();
   const { setSelectedProject } = useProjectStore();
@@ -31,12 +30,9 @@ const LogOutModal = () => {
       return;
     }
 
-    //const json = await response.json();
-
     clearUser();
     setSelectedProject(null);
     setModal("none");
-    //json.redirect && navigate(json.redirect);
     setLoading(false);
   };
 

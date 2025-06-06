@@ -22,7 +22,6 @@ const Login = () => {
     handleSubmit,
     formState: { errors },
   } = useForm<LoginInputs>();
-  //const navigate = useNavigate();
   const { setUser } = useUserStore();
 
   const onSubmit: SubmitHandler<LoginInputs> = async (data) => {
@@ -45,7 +44,6 @@ const Login = () => {
       const json = await response.json();
 
       json && setUser({ username: json.user.username, id: json.user.id, email: json.user.email });
-      //json.redirect && navigate(json.redirect);
     } catch (e: any) {
       serverError.current = e.message;
     } finally {

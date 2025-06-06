@@ -23,7 +23,6 @@ const SignUp = () => {
     handleSubmit,
     formState: { errors },
   } = useForm<SignUpInputs>();
-  //const navigate = useNavigate();
 
   const onSubmit: SubmitHandler<SignUpInputs> = async (data) => {
     setLoading(true);
@@ -41,10 +40,6 @@ const SignUp = () => {
         serverError.current = "Could not sign up.";
         return;
       }
-
-      //const json = await response.json();
-
-      //json && navigate("/login");
     } catch (e: any) {
       serverError.current = e.message;
     } finally {
