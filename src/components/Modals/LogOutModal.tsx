@@ -1,8 +1,7 @@
-import { useNavigate } from "react-router-dom";
 import useUserStore from "@/store/userStore";
 import useModalStore from "@/store/modalStore";
 import useClickOutside from "@/hooks/useClickOutside";
-import { LegacyRef, useState } from "react";
+import { LegacyRef, useRef, useState } from "react";
 import useProjectStore from "@/store/projectStore";
 import { baseURL } from "@/utils/env";
 import { LoaderCircle } from "lucide-react";
@@ -10,11 +9,12 @@ import { Button } from "@/components/ui/button";
 
 const LogOutModal = () => {
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+  //const navigate = useNavigate();
   const { clearUser } = useUserStore();
   const { setModal } = useModalStore();
   const { setSelectedProject } = useProjectStore();
   const ref = useClickOutside();
+  const serverError = useRef<null | string>(null);
 
   const handleLogout = async () => {
     setLoading(true);
@@ -26,12 +26,17 @@ const LogOutModal = () => {
       credentials: "include",
     });
 
-    const json = await response.json();
+    if (!response.ok) {
+      serverError.current = "Could not log out.";
+      return;
+    }
+
+    //const json = await response.json();
 
     clearUser();
     setSelectedProject(null);
     setModal("none");
-    json.redirect && navigate(json.redirect);
+    //json.redirect && navigate(json.redirect);
     setLoading(false);
   };
 

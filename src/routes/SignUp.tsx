@@ -1,5 +1,5 @@
 import { SubmitHandler, useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { patterns } from "../utils/patterns";
 import Label from "@/components/Modals/FormElements/Label";
 import { AvatarIcon, EnvelopeClosedIcon, LockClosedIcon } from "@radix-ui/react-icons";
@@ -23,7 +23,7 @@ const SignUp = () => {
     handleSubmit,
     formState: { errors },
   } = useForm<SignUpInputs>();
-  const navigate = useNavigate();
+  //const navigate = useNavigate();
 
   const onSubmit: SubmitHandler<SignUpInputs> = async (data) => {
     setLoading(true);
@@ -37,9 +37,14 @@ const SignUp = () => {
         body: JSON.stringify({ ...data }),
       });
 
-      const json = await response.json();
+      if (!response.ok) {
+        serverError.current = "Could not sign up.";
+        return;
+      }
 
-      json && navigate("/login");
+      //const json = await response.json();
+
+      //json && navigate("/login");
     } catch (e: any) {
       serverError.current = e.message;
     } finally {
@@ -101,7 +106,9 @@ const SignUp = () => {
         </div>
         {errors.password && (
           <>
-            <p className="text-sm md:text-base text-red-600">Password must include at least one lowercase, uppercase, digit and other character</p>
+            <p className="text-sm md:text-base text-red-600">
+              Password must include at least one lowercase, uppercase, digit and other character
+            </p>
             <p className="text-sm md:text-base">Password must be at least 8 characters long</p>
           </>
         )}

@@ -1,5 +1,5 @@
 import { SubmitHandler, useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import useUserStore from "../store/userStore";
 import Label from "@/components/Modals/FormElements/Label";
 import { EnvelopeClosedIcon, LockClosedIcon } from "@radix-ui/react-icons";
@@ -22,7 +22,7 @@ const Login = () => {
     handleSubmit,
     formState: { errors },
   } = useForm<LoginInputs>();
-  const navigate = useNavigate();
+  //const navigate = useNavigate();
   const { setUser } = useUserStore();
 
   const onSubmit: SubmitHandler<LoginInputs> = async (data) => {
@@ -37,10 +37,15 @@ const Login = () => {
         body: JSON.stringify({ ...data }),
       });
 
+      if (!response.ok) {
+        serverError.current = "Could not log in.";
+        return;
+      }
+
       const json = await response.json();
 
       json && setUser({ username: json.user.username, id: json.user.id, email: json.user.email });
-      json.redirect && navigate(json.redirect);
+      //json.redirect && navigate(json.redirect);
     } catch (e: any) {
       serverError.current = e.message;
     } finally {
