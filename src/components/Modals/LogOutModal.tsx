@@ -1,38 +1,28 @@
-import useUserStore from "@/store/userStore";
 import useModalStore from "@/store/modalStore";
 import useClickOutside from "@/hooks/useClickOutside";
-import { LegacyRef, useRef, useState } from "react";
+import { LegacyRef, useState } from "react";
 import useProjectStore from "@/store/projectStore";
-import { baseURL } from "@/utils/env";
 import { LoaderCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import useAuthStore from "@/store/authStore";
+import { useNavigate } from "react-router-dom";
 
 const LogOutModal = () => {
   const [loading, setLoading] = useState(false);
-  const { clearUser } = useUserStore();
+  const { clearToken } = useAuthStore();
   const { setModal } = useModalStore();
   const { setSelectedProject } = useProjectStore();
   const ref = useClickOutside();
-  const serverError = useRef<null | string>(null);
+  const navigate = useNavigate();
 
   const handleLogout = async () => {
     setLoading(true);
-    const response = await fetch(`${baseURL}/logout`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-    });
 
-    if (!response.ok) {
-      serverError.current = "Could not log out.";
-      return;
-    }
-
-    clearUser();
+    localStorage.removeItem("token");
+    clearToken();
     setSelectedProject(null);
     setModal("none");
+    navigate("/login");
     setLoading(false);
   };
 

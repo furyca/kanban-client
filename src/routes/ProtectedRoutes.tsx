@@ -1,19 +1,19 @@
-import useUserStore from "@/store/userStore";
 import { Outlet, useNavigate } from "react-router-dom";
 import Login from "./Login";
+import useAuthStore from "@/store/authStore";
 import { useEffect } from "react";
 
 const ProtectedRoutes = () => {
-  const { user } = useUserStore();
+  const { token } = useAuthStore();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!user) {
+    if (!token) {
       navigate("/login");
     }
-  }, [user, navigate]);
+  }, [token, navigate]);
 
-  return user ? <Outlet /> : <Login />;
+  return token ? <Outlet /> : <Login />;
 };
 
 export default ProtectedRoutes;

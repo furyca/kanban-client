@@ -5,6 +5,8 @@ interface UserProps {
   username: string;
   id: string;
   email: string;
+  avatar: string;
+  created_at: string;
 }
 
 interface UserState {

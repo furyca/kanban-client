@@ -1,19 +1,19 @@
-import useUserStore from "@/store/userStore";
 import { Outlet, useNavigate } from "react-router-dom";
 import Dashboard from "./Dashboard";
+import useAuthStore from "@/store/authStore";
 import { useEffect } from "react";
 
 const AuthRoutes = () => {
-  const { user } = useUserStore();
+  const { token } = useAuthStore();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (user) {
+    if (token) {
       navigate("/dashboard");
     }
-  }, [user, navigate]);
-
-  return user ? <Dashboard /> : <Outlet />;
+  }, [token, navigate]);
+  
+  return token ? <Dashboard /> : <Outlet />;
 };
 
 export default AuthRoutes;

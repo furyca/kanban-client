@@ -15,12 +15,13 @@ const DeleteProjectModal = () => {
 
   const handleYesClick = async () => {
     setLoading(true);
-
     try {
+      const token = localStorage.getItem("token");
       const response = await fetch(`${baseURL}/delete_project`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         credentials: "include",
         body: JSON.stringify({ id: selectedProject?.id }),

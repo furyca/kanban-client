@@ -13,7 +13,6 @@ const AddStatusModal = () => {
   const ref = useClickOutside();
   const { setSelectedProject, selectedProject, setProjects } = useProjectStore();
   const { setModal } = useModalStore();
-
   const methods = useForm<ProjectInputs>({
     defaultValues: {
       status: selectedProject?.status,

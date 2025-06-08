@@ -7,12 +7,14 @@ import SideBarButton from "./SideBarButton";
 import LogOut from "./LogOut";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import useUserStore from "@/store/userStore";
 
 const SideBar = () => {
   const [collapsed, setCollapsed] = useState(window.innerWidth > 768 ? false : true);
   const { projects, setSelectedProject, loadingProjects } = useProjectStore((state) => state);
   const { setModal } = useModalStore();
   const navigate = useNavigate();
+  const { user } = useUserStore();
 
   const handleCollapse = () => {
     setCollapsed((prev) => !prev);
@@ -66,7 +68,11 @@ const SideBar = () => {
           className={`${collapsed && "flex-col"} transition-all duration-300 flex justify-between mb-2 overflow-hidden`}
         >
           <Button variant="ghost" className="mt-2 hover:bg-slate-300" onClick={() => navigate("/")}>
-            <AvatarIcon />
+            {user?.avatar ? (
+              <img src={user.avatar} alt="User Avatar" className="w-6 h-6 rounded-full" />
+            ) : (
+              <AvatarIcon />
+            )}
           </Button>
           <LogOut />
           <Button variant="ghost" onClick={handleCollapse} className="mt-2 hover:bg-slate-300">

@@ -1,6 +1,5 @@
 import { SubmitHandler, useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
-import useUserStore from "../store/userStore";
 import Label from "@/components/Modals/FormElements/Label";
 import { EnvelopeClosedIcon, LockClosedIcon } from "@radix-ui/react-icons";
 import GoogleButton from "@/components/Auth/GoogleButton";
@@ -8,6 +7,8 @@ import { baseURL } from "@/utils/env";
 import { useRef, useState } from "react";
 import { LoaderCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import useAuthStore from "@/store/authStore";
+import useUserStore from "@/store/userStore";
 
 type LoginInputs = {
   email: string;
@@ -22,6 +23,7 @@ const Login = () => {
     handleSubmit,
     formState: { errors },
   } = useForm<LoginInputs>();
+  const { token, setToken } = useAuthStore();
   const { setUser } = useUserStore();
 
   const onSubmit: SubmitHandler<LoginInputs> = async (data) => {
@@ -31,6 +33,7 @@ const Login = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         credentials: "include",
         body: JSON.stringify({ ...data }),
@@ -43,7 +46,11 @@ const Login = () => {
 
       const json = await response.json();
 
-      json && setUser({ username: json.user.username, id: json.user.id, email: json.user.email });
+      if (json) {
+        localStorage.setItem("token", json.token);
+        setToken(json.token);
+        setUser({ ...json.user });
+      }
     } catch (e: any) {
       serverError.current = e.message;
     } finally {

@@ -1,5 +1,5 @@
 import { SubmitHandler, useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { patterns } from "../utils/patterns";
 import Label from "@/components/Modals/FormElements/Label";
 import { AvatarIcon, EnvelopeClosedIcon, LockClosedIcon } from "@radix-ui/react-icons";
@@ -8,6 +8,7 @@ import { baseURL } from "@/utils/env";
 import { LoaderCircle } from "lucide-react";
 import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import useAuthStore from "@/store/authStore";
 
 type SignUpInputs = {
   email: string;
@@ -18,6 +19,8 @@ type SignUpInputs = {
 const SignUp = () => {
   const [loading, setLoading] = useState(false);
   const serverError = useRef<null | string>(null);
+  const { token } = useAuthStore();
+  const navigate = useNavigate()
   const {
     register,
     handleSubmit,
@@ -31,6 +34,7 @@ const SignUp = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         credentials: "include",
         body: JSON.stringify({ ...data }),
@@ -40,6 +44,8 @@ const SignUp = () => {
         serverError.current = "Could not sign up.";
         return;
       }
+
+      navigate('/login')
     } catch (e: any) {
       serverError.current = e.message;
     } finally {

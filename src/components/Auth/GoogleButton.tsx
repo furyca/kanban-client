@@ -1,13 +1,14 @@
+import useAuthStore from "@/store/authStore";
 import useUserStore from "@/store/userStore";
 import { baseURL } from "@/utils/env";
 import { CredentialResponse, GoogleLogin } from "@react-oauth/google";
-import { useNavigate } from "react-router-dom";
 
 type TextType = "signin_with" | "signup_with" | "continue_with" | "signin" | undefined;
 
 const GoogleButton = ({ text }: { text: TextType }) => {
+  const { setToken } = useAuthStore();
   const { setUser } = useUserStore();
-  const navigate = useNavigate();
+
   const width = () => {
     if (window.innerWidth > 1024) {
       return 400;
@@ -18,7 +19,7 @@ const GoogleButton = ({ text }: { text: TextType }) => {
     return 200;
   };
 
-  const handleLoginSuccess = async (credentialResponse: CredentialResponse) => {    
+  const handleLoginSuccess = async (credentialResponse: CredentialResponse) => {
     const response = await fetch(`${baseURL}/googleAuth`, {
       method: "POST",
       headers: {
@@ -28,10 +29,17 @@ const GoogleButton = ({ text }: { text: TextType }) => {
       body: JSON.stringify({ token: credentialResponse.credential }),
     });
 
-    const json = await response.json();    
+    if (!response.ok) {
+      throw new Error(`Response status: ${response.status}`);
+    }
 
-    json && setUser({ username: json.user.username, id: json.user.sessionID, email: json.user.email });
-    json.redirect && navigate(json.redirect);
+    const json = await response.json();
+
+    if (json) {
+      localStorage.setItem("token", json.token);
+      setToken(json.token);
+      setUser({...json.user});
+    }
   };
 
   const handleLoginError = () => {

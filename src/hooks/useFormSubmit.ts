@@ -21,10 +21,12 @@ const useFormSubmit = ({ url, method, buildBody }: { url: string; method: string
     }
 
     try {
+      const token = localStorage.getItem("token");
       const response = await fetch(`${baseURL}${url}`, {
         method,
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         credentials: "include",
         body: JSON.stringify(buildBody(data)),

@@ -16,10 +16,12 @@ const RemoveStatusModal = () => {
   const handleYesClick = async () => {
     setLoading(true);
     try {
+      const token = localStorage.getItem("token");
       const response = await fetch(`${baseURL}/remove_status`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         credentials: "include",
         body: JSON.stringify({ id: selectedProject?.id, status: currentStatus }),

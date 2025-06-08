@@ -6,17 +6,22 @@ import ProjectSelectionArea from "@/components/Main/ProjectSelectionArea";
 import SideBar from "@/components/SideBar/SideBar";
 import StatusArea from "@/components/Main/StatusArea";
 import ProjectSummary from "@/components/Main/ProjectSummary";
+import useAuthStore from "@/store/authStore";
 
 const Dashboard = () => {
   const { setProjects, selectedProject, setLoadingProjects } = useProjectStore();
   const { setTasks, setLoadingTasks } = useTaskStore();
+  const { token } = useAuthStore();
 
   // Fetch projects
   useEffect(() => {
-    const getProjects = async () => {
+    const getProjects = async () => {      
       setLoadingProjects(true);
       const response = await fetch(`${baseURL}/read_projects`, {
         credentials: "include",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       if (!response.ok) {

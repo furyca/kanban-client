@@ -13,15 +13,15 @@ import SubmitButton from "../FormElements/SubmitButton";
 import useFormSubmit from "@/hooks/useFormSubmit";
 
 const CreateTaskModal = () => {
-  const { setTasks, setActiveTask } = useTaskStore();
+  const { setTasks, setActiveTask, subtaskRemovalList, clearSubtaskRemovalList } = useTaskStore();
   const { selectedProject } = useProjectStore();
-  const methods = useForm<TaskInputs>({ defaultValues: { subtasks: [{ text: "New Subtask", completed: false }] } });
+  const methods = useForm<TaskInputs>({ defaultValues: { subtasks: [{ subtask_id: "1", text: "New Subtask", completed: false }] } });
   const { setModal } = useModalStore();
   const ref = useClickOutside();
   const { onSubmit, res, loading } = useFormSubmit({
     url: "/create_task",
     method: "POST",
-    buildBody: (data) => ({ ...data, project_id: selectedProject?.id }),
+    buildBody: (data) => ({ ...data, project_id: selectedProject?.id, removalList: subtaskRemovalList }),
   });
 
   useEffect(() => {
@@ -32,6 +32,10 @@ const CreateTaskModal = () => {
     }
   }, [res?.tasks]);
 
+  useEffect(() => {
+    clearSubtaskRemovalList();
+  }, []);
+  
   return (
     <FormProvider {...methods}>
       <form
