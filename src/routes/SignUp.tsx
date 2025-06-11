@@ -2,7 +2,7 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { patterns } from "../utils/patterns";
 import Label from "@/components/Modals/FormElements/Label";
-import { AvatarIcon, EnvelopeClosedIcon, LockClosedIcon } from "@radix-ui/react-icons";
+import { EnvelopeClosedIcon, LockClosedIcon } from "@radix-ui/react-icons";
 import GoogleButton from "@/components/Auth/GoogleButton";
 import { baseURL } from "@/utils/env";
 import { LoaderCircle } from "lucide-react";
@@ -12,7 +12,6 @@ import useAuthStore from "@/store/authStore";
 
 type SignUpInputs = {
   email: string;
-  username: string;
   password: string;
 };
 
@@ -74,7 +73,7 @@ const SignUp = () => {
         </div>
         {errors.email && <span className="text-sm md:text-base text-red-600">Invalid email</span>}
       </section>
-      <section className="mb-2">
+      {/* <section className="mb-2">
         <Label forElement="signup-username" text="Username" />
         <div className="relative">
           <AvatarIcon className="w-5 h-5 text-gray-600 absolute left-1 top-1 md:top-3" />
@@ -92,7 +91,7 @@ const SignUp = () => {
             <p className="text-sm md:text-base">Username must be between 3-48 characters long</p>
           </>
         )}
-      </section>
+       </section> */}
       <section className="mb-2">
         <Label forElement="signup-password" text="Password" />
         <div className="relative">

@@ -1,10 +1,8 @@
 import useAuthStore from "@/store/authStore";
-// import useUserStore from "@/store/userStore";
 import { Link } from "react-router-dom";
 
 const NavBar = () => {
   const { token } = useAuthStore();
-  // const { user } = useUserStore();
 
   return (
     <nav className="flex justify-between items-center p-3 bg-zinc-900/50 border-b border-zinc-700 h-12">
