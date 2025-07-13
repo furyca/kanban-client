@@ -15,7 +15,7 @@ const Dashboard = () => {
 
   // Fetch projects
   useEffect(() => {
-    const getProjects = async () => {      
+    const getProjects = async () => {
       setLoadingProjects(true);
       const response = await fetch(`${baseURL}/read_projects`, {
         credentials: "include",
@@ -66,11 +66,13 @@ const Dashboard = () => {
   return (
     <div className="flex h-full">
       <SideBar />
-      <main className="w-full relative">
+      <main className="w-full h-full">
         {selectedProject ? (
           <>
             <ProjectSummary />
-            <StatusArea />
+            <div className="relative grid grid-rows-[auto,1fr] h-[calc(100%-48px)]">
+              <StatusArea />
+            </div>
           </>
         ) : (
           <ProjectSelectionArea />

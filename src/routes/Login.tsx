@@ -62,7 +62,7 @@ const Login = () => {
     <form
       method="POST"
       onSubmit={handleSubmit(onSubmit)}
-      className="w-11/12 mt-5 p-2 md:w-1/3 md:p-6 gap-1 flex flex-col bg-neutral-300 drop-shadow-xl mx-auto text-zinc-800 opacity-75 rounded-sm"
+      className="w-11/12 mt-5 p-2 md:w-2/3 lg:w-1/3 md:p-6 gap-1 flex flex-col bg-neutral-300 drop-shadow-xl mx-auto text-zinc-800 opacity-75 rounded-sm overflow-auto h-[calc(100%-72px)] max-h-fit"
       data-testid="form-log-in"
     >
       <h1 className="text-2xl md:text-3xl text-center font-extrabold tracking-wider mb-2">Login</h1>

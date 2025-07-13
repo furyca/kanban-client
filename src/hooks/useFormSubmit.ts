@@ -20,6 +20,9 @@ const useFormSubmit = ({ url, method, buildBody }: { url: string; method: string
       });
     }
 
+    console.log(data);
+    
+
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(`${baseURL}${url}`, {

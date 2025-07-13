@@ -15,6 +15,7 @@ const UpdateProjectModal = () => {
   const { setProjects, setSelectedProject, selectedProject } = useProjectStore();
   const methods = useForm<ProjectInputs>({
     defaultValues: {
+      description: selectedProject?.description,
       status: selectedProject?.status,
     },
   });
@@ -30,7 +31,7 @@ const UpdateProjectModal = () => {
   const { setModal } = useModalStore();
 
   useEffect(() => {
-    if (res?.projects) {   
+    if (res?.projects) {
       setSelectedProject(res.projects.find((project: ProjectProps) => project.id === res.selectedProjectID));
       setProjects(res.projects);
       setModal("none");
@@ -53,7 +54,7 @@ const UpdateProjectModal = () => {
           message="Title must be between 1-40 characters."
           form_type="update_project"
         />
-        <DescSection />
+        <DescSection id="update-project-description" form_type="update_project" />
         <StatusField />
         <SubmitButton id="update-project-confirm" text="Save" loading={loading} />
       </form>

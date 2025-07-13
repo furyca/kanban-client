@@ -23,8 +23,8 @@ const SideBar = () => {
   return (
     <aside
       className={`${
-        collapsed ? "w-16" : "w-52"
-      } border-r border-slate-600 transition-all duration-300 flex flex-col sticky top-0 justify-between  bg-zinc-900/50 h-full`}
+        collapsed ? "w-12 max-w-12 min-w-12" : "w-44 max-w-44 min-w-44"
+      } border-r border-slate-600 transition-all duration-300 flex flex-col sticky top-0 justify-between bg-zinc-900/50 h-[105%]`}
       data-testid="sidebar"
     >
       <section className="h-full overflow-y-auto overflow-x-hidden" data-testid="sidebar-projects">
@@ -58,24 +58,24 @@ const SideBar = () => {
       >
         <Button
           onClick={() => setModal("create_project")}
-          className={`mt-2 bg-blue-500 hover:bg-blue-600 w-full`}
+          className={`${collapsed ? "py-0 mx-auto mt-1 h-8" : "mt-2"} bg-blue-500 hover:bg-blue-600 w-full`}
           variant="ghost"
           data-testid="open-create-project-modal"
         >
           <Plus />
         </Button>
         <div
-          className={`${collapsed && "flex-col"} transition-all duration-300 flex justify-between mb-2 overflow-hidden`}
+          className={`${collapsed && "flex-col"} transition-all duration-300 flex justify-between mb-1 overflow-hidden`}
         >
-          <Button variant="ghost" className="mt-2 hover:bg-slate-300" onClick={() => navigate("/")}>
+          <Button variant="ghost" className={`${collapsed ? "px-1 py-0.5 mx-auto my-0.5 h-8" : "mt-2 hover:bg-slate-300"}  w-full`} onClick={() => navigate("/")}>
             {user?.avatar ? (
-              <img src={user.avatar} alt="User Avatar" className="w-6 h-6 rounded-full" />
+              <img src={user.avatar} alt="" className="w-6 rounded-full" referrerPolicy="no-referrer" />
             ) : (
               <AvatarIcon />
             )}
           </Button>
-          <LogOut />
-          <Button variant="ghost" onClick={handleCollapse} className="mt-2 hover:bg-slate-300">
+          <LogOut collapsed={collapsed} />
+          <Button variant="ghost" onClick={handleCollapse} className={`${collapsed ? "py-0 mx-auto my-0.5 h-8" : "mt-2"} hover:bg-slate-300 w-full`}>
             {collapsed ? <ChevronRight /> : <ChevronLeft />}
           </Button>
         </div>

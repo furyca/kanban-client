@@ -47,6 +47,6 @@ export type TitleInputProps = {
 };
 
 export type DescSectionProps = {
-  register: UseFormRegister<ProjectInputs>;
-  errors: ErrorProp;
+  id: string;
+  form_type: FormType;
 };

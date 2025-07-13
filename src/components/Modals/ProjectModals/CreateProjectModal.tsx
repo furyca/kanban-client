@@ -23,6 +23,7 @@ const CreateProjectModal = () => {
   const methods = useForm<ProjectInputs>({
     mode: "onChange",
     defaultValues: {
+      description: "",
       status: [
         {
           id: window.crypto.randomUUID(),
@@ -63,7 +64,7 @@ const CreateProjectModal = () => {
           message="Title must be between 1-40 characters."
           form_type="create_project"
         />
-        <DescSection />
+        <DescSection id="create-project-description" form_type="create_project" />
         <StatusField />
         <SubmitButton id="confirm-create-project" text="Create" loading={loading} />
       </form>
