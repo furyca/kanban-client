@@ -16,12 +16,10 @@ export const statusRules: RegisterOptions<ProjectInputs, `status.${number}.text`
   validate: (value) => value.trim().length > 0,
 };
 
-export const subtaskRules: RegisterOptions<TaskInputs, `subtasks.${number}.text`> = {
-  required: true,
-  minLength: 1,
-  maxLength: 255,
-  validate: (value) => value.trim().length > 0,
-};
+// export const subtaskRules: RegisterOptions<TaskInputs, `subtasks.${number}.text`> = {
+//   maxLength: 255,
+//   validate: subtaskValidator,
+// };
 
 export const descRules: RegisterOptions<ProjectInputs, "description"> = {
   maxLength: 255,

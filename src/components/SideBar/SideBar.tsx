@@ -67,7 +67,7 @@ const SideBar = () => {
         <div
           className={`${collapsed && "flex-col"} transition-all duration-300 flex justify-between mb-1 overflow-hidden`}
         >
-          <Button variant="ghost" className={`${collapsed ? "px-1 py-0.5 mx-auto my-0.5 h-8" : "mt-2 hover:bg-slate-300"}  w-full`} onClick={() => navigate("/")}>
+          <Button variant="ghost" className={`${collapsed ? "px-1 py-0.5 mx-auto my-0.5" : "mt-2 hover:bg-slate-300"}  w-full`} onClick={() => navigate("/")}>
             {user?.avatar ? (
               <img src={user.avatar} alt="" className="w-6 rounded-full" referrerPolicy="no-referrer" />
             ) : (

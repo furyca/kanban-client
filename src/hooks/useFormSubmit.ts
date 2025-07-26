@@ -18,10 +18,7 @@ const useFormSubmit = ({ url, method, buildBody }: { url: string; method: string
       data.subtasks.forEach((subtask) => {
         subtask.task_id = activeTask?.id as string;
       });
-    }
-
-    console.log(data);
-    
+    }    
 
     try {
       const token = localStorage.getItem("token");
@@ -34,7 +31,7 @@ const useFormSubmit = ({ url, method, buildBody }: { url: string; method: string
         credentials: "include",
         body: JSON.stringify(buildBody(data)),
       });
-
+      
       if (!response.ok) {
         throw new Error(`Response status: ${response.status}`);
       }

@@ -15,7 +15,9 @@ import useFormSubmit from "@/hooks/useFormSubmit";
 const CreateTaskModal = () => {
   const { setTasks, setActiveTask, subtaskRemovalList, clearSubtaskRemovalList } = useTaskStore();
   const { selectedProject } = useProjectStore();
-  const methods = useForm<TaskInputs>({ defaultValues: { subtasks: [{ subtask_id: "1", text: "New Subtask", completed: false }] } });
+  const methods = useForm<TaskInputs>({
+    defaultValues: { subtasks: [{ subtask_id: window.crypto.randomUUID(), text: "New Subtask", completed: false }] },
+  });
   const { setModal } = useModalStore();
   const ref = useClickOutside();
   const { onSubmit, res, loading } = useFormSubmit({
@@ -35,7 +37,7 @@ const CreateTaskModal = () => {
   useEffect(() => {
     clearSubtaskRemovalList();
   }, []);
-  
+
   return (
     <FormProvider {...methods}>
       <form
@@ -52,7 +54,7 @@ const CreateTaskModal = () => {
           message="Title must be between 1-40 characters."
           form_type="create_task"
         />
-        <SubtaskField />
+        <SubtaskField form_type="create_task" />
         <SelectStatusSection />
         <SubmitButton id="confirm-create-task" text="Create" loading={loading} />
       </form>

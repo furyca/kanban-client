@@ -37,7 +37,7 @@ const TaskContainer = ({ title, index, id }: { title: string; index: number; id:
     <div
       ref={setNodeRef}
       style={style}
-      className="border border-[#3a52c93a] rounded-lg w-96 h-[calc(100%-80px)] overflow-y-auto overflow-x-hidden self-start"
+      className="border border-[#3a52c93a] rounded-lg w-96 flex-shrink-0 h-full overflow-y-auto overflow-x-hidden self-start"
       data-testid={`task-container-${index}`}
     >
       <div className="flex justify-between items-center sticky top-0 backdrop-blur-sm p-2 z-[2] bg-zinc-900/50 border-b-2 border-slate-600 tracking-wide">

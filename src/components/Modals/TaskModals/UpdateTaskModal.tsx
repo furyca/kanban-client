@@ -31,7 +31,7 @@ const UpdateTaskModal = () => {
       removalList: subtaskRemovalList,
       ...data,
     }),
-  });  
+  });
 
   useEffect(() => {
     clearSubtaskRemovalList();
@@ -43,7 +43,7 @@ const UpdateTaskModal = () => {
       setActiveTask(null);
       setModal("none");
     }
-  }, [res?.tasks]);
+  }, [res?.tasks]);  
 
   return (
     <FormProvider {...methods}>
@@ -61,7 +61,7 @@ const UpdateTaskModal = () => {
           message="Title must be between 1-40 characters."
           form_type="update_task"
         />
-        <SubtaskField />
+        <SubtaskField form_type="update_task" />
         <SelectStatusSection />
         <SubmitButton id="update-task-confirm" text="Save" loading={loading} />
       </form>

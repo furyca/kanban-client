@@ -12,7 +12,7 @@ export interface TaskProps {
 }
 
 export interface SubTaskProps {
-  subtask_id?: string;
+  subtask_id: string;
   task_id: string;
   text: string;
   completed: boolean;

@@ -159,7 +159,7 @@ const StatusArea = () => {
     >
       <div
         ref={containerRef}
-        className="flex flex-row absolute overflow-y-hidden gap-1 overflow-x-auto p-1 w-full h-full active:cursor-grabbing select-none"
+        className="flex flex-row absolute left-0 right-0 overflow-y-hidden gap-1 overflow-x-auto p-1 h-[calc(100%-12px)] active:cursor-grabbing select-none"
         onMouseDown={window.innerWidth > 768 ? handleMouseDown : undefined}
         onMouseMove={window.innerWidth > 768 ? handleMouseMove : undefined}
         onMouseUp={window.innerWidth > 768 ? handleMouseUp : undefined}

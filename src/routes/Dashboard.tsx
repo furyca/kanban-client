@@ -64,13 +64,13 @@ const Dashboard = () => {
   }, [selectedProject?.id]);
 
   return (
-    <div className="flex h-full">
+    <div className="flex flex-grow h-full">
       <SideBar />
-      <main className="w-full h-full">
+      <main className="w-full flex flex-col flex-grow">
         {selectedProject ? (
           <>
             <ProjectSummary />
-            <div className="relative grid grid-rows-[auto,1fr] h-[calc(100%-48px)]">
+            <div className="relative grid grid-rows-[auto,1fr] w-full flex-grow">
               <StatusArea />
             </div>
           </>
