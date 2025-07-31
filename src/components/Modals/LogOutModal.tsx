@@ -6,6 +6,7 @@ import { LoaderCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import useAuthStore from "@/store/authStore";
 import { useNavigate } from "react-router-dom";
+import { googleLogout } from "@react-oauth/google";
 
 const LogOutModal = () => {
   const [loading, setLoading] = useState(false);
@@ -21,6 +22,7 @@ const LogOutModal = () => {
     localStorage.removeItem("token");
     clearToken();
     setSelectedProject(null);
+    googleLogout();
     setModal("none");
     navigate("/login");
     setLoading(false);

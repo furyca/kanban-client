@@ -28,6 +28,7 @@ const SideBarButton = ({ title, id, description, status, index, collapsed }: Sid
       } ${collapsed ? "justify-center pe-2 mb-1" : "justify-between ps-2"}`}
       onClick={() => setSelectedProject({ title, id, description, status })}
       data-testid={`select-project-${index}`}
+      title={title}
     >
       {collapsed ? (
         <span className='text-xl font-bold tracking-wider'>{title.length > 1 ? title.substring(0,2) : title[0]}</span>
@@ -40,6 +41,7 @@ const SideBarButton = ({ title, id, description, status, index, collapsed }: Sid
             className="p-1 md:p-2 h-fit border-none shadow-none rounded-b-none rounded-r-none text-violet-900 bg-transparent md:text-violet-400 hover:bg-violet-600 hover:text-white"
             onClick={openUpdateProjectModal}
             data-testid={`open-update-project-modal-${index}`}
+            title="Edit Project"
           >
             <Pencil2Icon />
           </Button>
@@ -47,6 +49,7 @@ const SideBarButton = ({ title, id, description, status, index, collapsed }: Sid
             className="p-1 md:p-2 h-fit border-none shadow-none rounded-b-none rounded-r-none text-red-900 bg-transparent md:text-red-600 hover:bg-red-800 hover:text-white"
             onClick={openDeleteProjectModal}
             data-testid={`open-delete-project-modal-${index}`}
+            title="Delete Project"
           >
             <TrashIcon />
           </Button>

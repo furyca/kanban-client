@@ -32,7 +32,7 @@ const Task = ({ id, title, subtasks, status, created_at, updated_at, index, ...p
 
   useEffect(() => {
     setContentHeight(content.current?.scrollHeight as number);
-  }, [subtasks]);
+  }, [subtasks?.length]);
 
   return (
     <div
@@ -51,6 +51,7 @@ const Task = ({ id, title, subtasks, status, created_at, updated_at, index, ...p
             size="sm"
             onClick={openEditTaskModal}
             data-testid={`open-update-task-modal-${index}`}
+            title="Edit Task"
             className="p-1.5 h-fit border-none shadow-none rounded-sm bg-violet-500 text-white md:bg-transparent md:text-violet-400 hover:bg-violet-600 hover:text-white"
           >
             <Edit size={16} strokeWidth={1.5} />
@@ -60,6 +61,7 @@ const Task = ({ id, title, subtasks, status, created_at, updated_at, index, ...p
             size="sm"
             className="p-1.5 h-fit border-none shadow-none rounded-sm bg-red-900 text-white md:bg-transparent md:text-red-600 hover:bg-red-800 hover:text-white"
             onClick={openDeleteTaskModal}
+            title="Delete Task"
             data-testid={`open-delete-task-modal-${index}`}
           >
             <Trash size={16} strokeWidth={1.5} />
@@ -82,13 +84,14 @@ const Task = ({ id, title, subtasks, status, created_at, updated_at, index, ...p
         )}
       </div>
       <div className="flex justify-between items-center mb-2 text-xs font-bold tracking-tight">
-        <p>{formattedCreationDate}</p>
-        <p>{formattedUpdateDate}</p>
+        <p title="Created">{formattedCreationDate}</p>
+        <p title="Updated">{formattedUpdateDate}</p>
       </div>
       <div className="absolute z-[1] w-full left-0 -bottom-4 cursor-auto">
         <div
           className="bg-indigo-950/80 w-8 h-8 rounded-full mx-auto flex justify-center items-center cursor-pointer border border-violet-700 transition-transform delay-75 duration-300 hover:scale-125 hover:border-2"
           onClick={() => setExpanded((prev) => !prev)}
+          title={expanded ? "Collapse" : "Expand"}
         >
           {expanded ? <ChevronUp /> : <ChevronDown />}
         </div>

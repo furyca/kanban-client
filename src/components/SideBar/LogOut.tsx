@@ -6,7 +6,7 @@ const LogOut = ({collapsed}: {collapsed: boolean}) => {
   const { setModal } = useModalStore();
 
   return (
-    <Button variant="ghost" className={`text-red-500 hover:bg-red-600 w-full ${collapsed ? "py-1 mx-auto mt-0 h-8" : "mt-2"}`} onClick={() => setModal("logout")}>
+    <Button title="Log Out" variant="ghost" className={`text-red-500 hover:bg-red-600 w-full ${collapsed ? "py-1 mx-auto mt-0 h-8" : "mt-2"}`} onClick={() => setModal("logout")}>
       <ExitIcon />
     </Button>
   );

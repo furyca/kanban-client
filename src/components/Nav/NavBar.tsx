@@ -8,7 +8,7 @@ const NavBar = () => {
     <nav className="flex justify-between items-center p-3 bg-zinc-900/50 border-b border-zinc-700 h-12">
       <div className="flex gap-8 items-center">
         <Link to="/">
-          <img src="/logo.png" alt="logo" className="h-8 w-20 rounded-sm" />
+          <img src="/logo.png" alt="logo" className="h-8 w-20 rounded-sm" title="Home" />
         </Link>
         {/* {user && <span className="hidden sm:block text-sm font-bold text-slate-300">{user.username}</span>} */}
       </div>

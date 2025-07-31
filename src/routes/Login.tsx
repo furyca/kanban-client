@@ -4,11 +4,12 @@ import Label from "@/components/Modals/FormElements/Label";
 import { EnvelopeClosedIcon, LockClosedIcon } from "@radix-ui/react-icons";
 import GoogleButton from "@/components/Auth/GoogleButton";
 import { baseURL } from "@/utils/env";
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { LoaderCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import useAuthStore from "@/store/authStore";
 import useUserStore from "@/store/userStore";
+import useUIStatusStore from "@/store/uiStatusStore";
 
 type LoginInputs = {
   email: string;
@@ -16,7 +17,7 @@ type LoginInputs = {
 };
 
 const Login = () => {
-  const [loading, setLoading] = useState(false);
+  //const [loading, setLoading] = useState(false);
   const serverError = useRef<null | string>(null);
   const {
     register,
@@ -25,6 +26,7 @@ const Login = () => {
   } = useForm<LoginInputs>();
   const { token, setToken } = useAuthStore();
   const { setUser } = useUserStore();
+  const { loading, setLoading } = useUIStatusStore();
 
   const onSubmit: SubmitHandler<LoginInputs> = async (data) => {
     setLoading(true);

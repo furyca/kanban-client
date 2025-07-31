@@ -37,6 +37,7 @@ const SideBar = () => {
           <Button
             onClick={() => setSelectedProject(null)}
             className="tracking-wider underline transition-all duration-100 underline-offset-1 hover:underline-offset-2 bg-transparent hover:bg-transparent text-white py-0"
+            title="All Projects"
           >
             All
           </Button>
@@ -61,13 +62,18 @@ const SideBar = () => {
           className={`${collapsed ? "py-0 mx-auto mt-1 h-8" : "mt-2"} bg-blue-500 hover:bg-blue-600 w-full`}
           variant="ghost"
           data-testid="open-create-project-modal"
+          title="Create Project"
         >
           <Plus />
         </Button>
         <div
           className={`${collapsed && "flex-col"} transition-all duration-300 flex justify-between mb-1 overflow-hidden`}
         >
-          <Button variant="ghost" className={`${collapsed ? "px-1 py-0.5 mx-auto my-0.5" : "mt-2 hover:bg-slate-300"}  w-full`} onClick={() => navigate("/")}>
+          <Button
+            variant="ghost"
+            className={`${collapsed ? "px-1 py-0.5 mx-auto my-0.5" : "mt-2 hover:bg-slate-300"}  w-full`}
+            onClick={() => navigate("/")}
+          >
             {user?.avatar ? (
               <img src={user.avatar} alt="" className="w-6 rounded-full" referrerPolicy="no-referrer" />
             ) : (
@@ -75,7 +81,12 @@ const SideBar = () => {
             )}
           </Button>
           <LogOut collapsed={collapsed} />
-          <Button variant="ghost" onClick={handleCollapse} className={`${collapsed ? "py-0 mx-auto my-0.5 h-8" : "mt-2"} hover:bg-slate-300 w-full`}>
+          <Button
+            variant="ghost"
+            onClick={handleCollapse}
+            className={`${collapsed ? "py-0 mx-auto my-0.5 h-8" : "mt-2"} hover:bg-slate-300 w-full`}
+            title={collapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+          >
             {collapsed ? <ChevronRight /> : <ChevronLeft />}
           </Button>
         </div>

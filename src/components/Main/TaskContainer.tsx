@@ -40,13 +40,28 @@ const TaskContainer = ({ title, index, id }: { title: string; index: number; id:
       className="border border-[#3a52c93a] rounded-lg w-96 flex-shrink-0 h-full overflow-y-auto overflow-x-hidden self-start"
       data-testid={`task-container-${index}`}
     >
-      <div className="flex justify-between items-center sticky top-0 backdrop-blur-sm p-2 z-[2] bg-zinc-900/50 border-b-2 border-slate-600 tracking-wide">
+      <div
+        className="flex justify-between items-center sticky top-0 backdrop-blur-sm p-2 z-[2] bg-zinc-900/50 border-b-2 border-slate-600 tracking-wide"
+        title={title}
+      >
         <h3 className="text-base font-bold truncate">{title}</h3>
         <div>
-          <Button variant="ghost" className="p-2 h-fit" onClick={openRemoveStatusModal} data-testid={`open-delete-status-modal-${id}`}>
+          <Button
+            variant="ghost"
+            className="p-2 h-fit"
+            onClick={openRemoveStatusModal}
+            data-testid={`open-delete-status-modal-${id}`}
+            title="Remove Status"
+          >
             <Minus />
           </Button>
-          <Button variant="ghost" className="p-2 h-fit" onClick={openAddTaskModal} data-testid={`open-create-task-modal-${index}`}>
+          <Button
+            variant="ghost"
+            className="p-2 h-fit"
+            onClick={openAddTaskModal}
+            data-testid={`open-create-task-modal-${index}`}
+            title="Add Task"
+          >
             <Plus />
           </Button>
         </div>

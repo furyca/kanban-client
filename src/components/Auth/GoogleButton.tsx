@@ -1,4 +1,5 @@
 import useAuthStore from "@/store/authStore";
+import useUIStatusStore from "@/store/uiStatusStore";
 import useUserStore from "@/store/userStore";
 import { baseURL } from "@/utils/env";
 import { CredentialResponse, GoogleLogin } from "@react-oauth/google";
@@ -8,6 +9,7 @@ type TextType = "signin_with" | "signup_with" | "continue_with" | "signin" | und
 const GoogleButton = ({ text }: { text: TextType }) => {
   const { setToken } = useAuthStore();
   const { setUser } = useUserStore();
+  const { setLoading } = useUIStatusStore();
 
   const width = () => {
     if (window.innerWidth > 1024) {
@@ -20,6 +22,7 @@ const GoogleButton = ({ text }: { text: TextType }) => {
   };
 
   const handleLoginSuccess = async (credentialResponse: CredentialResponse) => {
+    setLoading(true);
     const response = await fetch(`${baseURL}/googleAuth`, {
       method: "POST",
       headers: {
@@ -40,11 +43,13 @@ const GoogleButton = ({ text }: { text: TextType }) => {
       setToken(json.token);
       setUser({...json.user});
     }
+    setLoading(false);
   };
 
   const handleLoginError = () => {
     console.log("Login Failed");
   };
+  
   return (
     <div className="mx-auto">
       <GoogleLogin
