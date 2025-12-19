@@ -39,7 +39,6 @@ const GoogleButton = ({ text }: { text: TextType }) => {
     const json = await response.json();
 
     if (json) {
-      localStorage.setItem("token", json.token);
       setToken(json.token);
       setUser({...json.user});
     }
