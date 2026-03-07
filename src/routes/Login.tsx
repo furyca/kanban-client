@@ -1,68 +1,22 @@
-import { SubmitHandler, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import Label from "@/components/Modals/FormElements/Label";
 import { EnvelopeClosedIcon, LockClosedIcon } from "@radix-ui/react-icons";
 import GoogleButton from "@/components/Auth/GoogleButton";
-import { baseURL } from "@/utils/env";
-import { useRef } from "react";
 import { LoaderCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import useAuthStore from "@/store/authStore";
-import useUserStore from "@/store/userStore";
-import useUIStatusStore from "@/store/uiStatusStore";
-
-type LoginInputs = {
-  email: string;
-  password: string;
-};
+import useAuthStore from "@/store/auth/auth.store";
+import { LoginInputs } from "@/store/auth/type";
 
 const Login = () => {
-  //const [loading, setLoading] = useState(false);
-  const serverError = useRef<null | string>(null);
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<LoginInputs>();
-  const { token, setToken } = useAuthStore();
-  const { setUser } = useUserStore();
-  const { loading, setLoading } = useUIStatusStore();
-
-  const onSubmit: SubmitHandler<LoginInputs> = async (data) => {
-    setLoading(true);
-    try {
-      const response = await fetch(`${baseURL}/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        credentials: "include",
-        body: JSON.stringify({ ...data }),
-      });
-
-      if (!response.ok) {
-        serverError.current = "Could not log in.";
-        return;
-      }
-
-      const json = await response.json();
-
-      if (json) {
-        setToken(json.token);
-        setUser({ ...json.user });
-      }
-    } catch (e: any) {
-      serverError.current = e.message;
-    } finally {
-      setLoading(false);
-    }
-  };
+  const {register, handleSubmit, formState: { errors }} = useForm<LoginInputs>();
+  const login = useAuthStore((state) => state.login);
+  const loadingAuth = useAuthStore((state) => state.loadingAuth);
 
   return (
     <form
       method="POST"
-      onSubmit={handleSubmit(onSubmit)}
+      onSubmit={handleSubmit(login)}
       className="w-11/12 mt-5 p-2 md:w-2/3 lg:w-1/3 md:p-6 gap-1 flex flex-col bg-neutral-300 drop-shadow-xl mx-auto text-zinc-800 opacity-75 rounded-sm overflow-y-auto overflow-x-hidden h-[calc(100%-72px)] max-h-fit"
       data-testid="form-log-in"
     >
@@ -105,9 +59,9 @@ const Login = () => {
         type="submit"
         className="p-6 text-lg tracking-wider w-11/12 mx-auto rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 transition-all duration-300 hover:opacity-100 hover:drop-shadow-xl"
         data-testid="login-button"
-        disabled={loading}
+        disabled={loadingAuth}
       >
-        {loading && <LoaderCircle className="animate-spin" />}
+        {loadingAuth && <LoaderCircle className="animate-spin" />}
         LOGIN
       </Button>
       <GoogleButton text="signin_with" />

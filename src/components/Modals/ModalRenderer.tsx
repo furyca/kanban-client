@@ -1,4 +1,4 @@
-import useModalStore from "@/store/modalStore";
+import useModalStore from "@/store/modal/modal.store";
 import DeleteTaskModal from "./TaskModals/DeleteTaskModal";
 import CreateTaskModal from "./TaskModals/CreateTaskModal";
 import UpdateTaskModal from "./TaskModals/UpdateTaskModal";

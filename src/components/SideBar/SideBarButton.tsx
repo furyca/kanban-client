@@ -1,33 +1,42 @@
-import useModalStore from "@/store/modalStore";
-import useProjectStore, { ProjectProps } from "@/store/projectStore";
+import useModalStore from "@/store/modal/modal.store";
 import { Pencil2Icon, TrashIcon } from "@radix-ui/react-icons";
 import { Button } from "@/components/ui/button";
+import { useSelectedProject } from "@/store/projects/project.selectors";
+import useProjectStore from "@/store/projects/project.store";
 
-interface SideBarButtonProps extends ProjectProps {
+interface SideBarButtonProps {
+  id: string;
+  title: string;
   collapsed: boolean;
 }
 
-const SideBarButton = ({ title, id, description, status, index, collapsed }: SideBarButtonProps) => {
+const SideBarButton = ({ id, title, collapsed }: SideBarButtonProps) => {
   const { setModal } = useModalStore();
-  const { selectedProject, setSelectedProject } = useProjectStore();
+  const setCurrentProjectId = useModalStore(state => state.setCurrentProjectId);
+  const setSelectedProjectID = useProjectStore(state => state.setSelectedProjectID);
+  const selectedProject = useSelectedProject();
 
   const openDeleteProjectModal = () => {
     setModal("delete_project");
-    setSelectedProject({ title, id, description, status });
+    setCurrentProjectId(id);
   };
 
   const openUpdateProjectModal = () => {
     setModal("update_project");
-    setSelectedProject({ title, id, description, status });
+    setCurrentProjectId(id);
   };
+
+  const selectProject = () => {
+    setSelectedProjectID(id);
+  }
 
   return (
     <div
       className={`flex items-center text-sm cursor-pointer select-none rounded-none p-0 flex-1 group hover:bg-white/10 hover:text-white ${
         selectedProject?.id === id && "bg-white/30"
       } ${collapsed ? "justify-center pe-2 mb-1" : "justify-between ps-2"}`}
-      onClick={() => setSelectedProject({ title, id, description, status })}
-      data-testid={`select-project-${index}`}
+      onClick={selectProject}
+      data-testid={`select-project-${id}`}
       title={title}
     >
       {collapsed ? (
@@ -40,7 +49,7 @@ const SideBarButton = ({ title, id, description, status, index, collapsed }: Sid
           <Button
             className="p-1 md:p-2 h-fit border-none shadow-none rounded-b-none rounded-r-none text-violet-900 bg-transparent md:text-violet-400 hover:bg-violet-600 hover:text-white"
             onClick={openUpdateProjectModal}
-            data-testid={`open-update-project-modal-${index}`}
+            data-testid={`open-update-project-modal-${id}`}
             title="Edit Project"
           >
             <Pencil2Icon />
@@ -48,7 +57,7 @@ const SideBarButton = ({ title, id, description, status, index, collapsed }: Sid
           <Button
             className="p-1 md:p-2 h-fit border-none shadow-none rounded-b-none rounded-r-none text-red-900 bg-transparent md:text-red-600 hover:bg-red-800 hover:text-white"
             onClick={openDeleteProjectModal}
-            data-testid={`open-delete-project-modal-${index}`}
+            data-testid={`open-delete-project-modal-${id}`}
             title="Delete Project"
           >
             <TrashIcon />

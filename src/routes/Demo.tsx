@@ -1,26 +1,27 @@
-import { useEffect } from "react";
 import ProjectSelectionArea from "@/components/Main/ProjectSelectionArea";
-import SideBar from "@/components/SideBar/SideBar";
-import StatusArea from "@/components/Main/StatusArea";
 import ProjectSummary from "@/components/Main/ProjectSummary";
+import StatusArea from "@/components/Main/StatusArea";
+import SideBar from "@/components/SideBar/SideBar";
 import useAuthStore from "@/store/auth/auth.store";
 import useProjectStore from "@/store/projects/project.store";
 import useTaskStore from "@/store/tasks/task.store";
+import { useEffect } from "react";
 
-const Dashboard = () => {
+const Demo = () => {
+  const selectedProjectID = useProjectStore((s) => s.selectedProjectID);
   const fetchProjects = useProjectStore((s) => s.fetchProjects);
   const fetchTasks = useTaskStore((s) => s.fetchTasks);
-  const selectedProjectID = useProjectStore((s) => s.selectedProjectID);
-  const { isAuthChecked, user } = useAuthStore();
+  const { isAuthChecked } = useAuthStore();
 
-  useEffect(() => {    
-    isAuthChecked && user && fetchProjects();
-  }, [isAuthChecked, user, fetchProjects]);
+  useEffect(() => {
+    isAuthChecked && fetchProjects();
+  }, [isAuthChecked]);
 
   useEffect(() => {
     const signal: AbortSignal = new AbortController().signal;
     selectedProjectID && fetchTasks(signal);
   }, [selectedProjectID, fetchTasks]);
+
   return (
     <div className="flex flex-grow h-full">
       <SideBar />
@@ -40,4 +41,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default Demo;

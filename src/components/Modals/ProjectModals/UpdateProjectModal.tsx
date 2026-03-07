@@ -1,48 +1,31 @@
-import useModalStore from "@/store/modalStore";
-import useProjectStore, { ProjectProps } from "@/store/projectStore";
 import { FormProvider, useForm } from "react-hook-form";
-import { ProjectInputs } from "./type";
 import useClickOutside from "@/hooks/useClickOutside";
-import { LegacyRef, useEffect } from "react";
+import { LegacyRef } from "react";
 import FormHeader from "../FormSections/FormHeader";
 import TitleSection from "../FormSections/TitleSection";
 import SubmitButton from "../FormElements/SubmitButton";
 import DescSection from "../FormSections/DescSection";
 import StatusField from "../FormSections/StatusField";
-import useFormSubmit from "@/hooks/useFormSubmit";
+import { useSelectedProject } from "@/store/projects/project.selectors";
+import { UpdateProjectInput } from "@/store/projects/type";
+import useProjectStore from "@/store/projects/project.store";
 
 const UpdateProjectModal = () => {
-  const { setProjects, setSelectedProject, selectedProject } = useProjectStore();
-  const methods = useForm<ProjectInputs>({
+  const selectedProject = useSelectedProject();
+  const ref = useClickOutside();
+  const { updateProject, loadingProjects } = useProjectStore();
+  const methods = useForm<UpdateProjectInput>({
     defaultValues: {
       description: selectedProject?.description,
-      status: selectedProject?.status,
+      statuses: selectedProject?.statuses,
     },
   });
-  const { onSubmit, res, loading } = useFormSubmit({
-    url: "/update_project",
-    method: "PUT",
-    buildBody: (data) => ({
-      id: selectedProject?.id,
-      ...data,
-    }),
-  });
-  const ref = useClickOutside();
-  const { setModal } = useModalStore();
-
-  useEffect(() => {
-    if (res?.projects) {
-      setSelectedProject(res.projects.find((project: ProjectProps) => project.id === res.selectedProjectID));
-      setProjects(res.projects);
-      setModal("none");
-    }
-  }, [res?.projects]);
-
+  
   return (
     <FormProvider {...methods}>
       <form
         method="PUT"
-        onSubmit={methods.handleSubmit(onSubmit)}
+        onSubmit={methods.handleSubmit(updateProject)}
         className="flex flex-col rounded-lg h-5/6 w-11/12 md:w-2/3 lg:w-1/2 overflow-auto bg-slate-800 border-2 border-gray-500 text-slate-400 shadow-card"
         data-testid="update-project-modal"
         ref={ref as LegacyRef<HTMLFormElement>}
@@ -56,7 +39,7 @@ const UpdateProjectModal = () => {
         />
         <DescSection id="update-project-description" form_type="update_project" />
         <StatusField />
-        <SubmitButton id="update-project-confirm" text="Save" loading={loading} />
+        <SubmitButton id="update-project-confirm" text="Save" loading={loadingProjects} />
       </form>
     </FormProvider>
   );

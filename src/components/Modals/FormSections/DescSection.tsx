@@ -3,17 +3,17 @@ import { useState } from "react";
 import { descRules } from "../formRules";
 import InputInfo from "../FormElements/InputInfo";
 import { useFormContext } from "react-hook-form";
-import { ProjectInputs } from "../ProjectModals/type";
-import useProjectStore from "@/store/projectStore";
 import { DescSectionProps } from "./type";
+import { useSelectedProject } from "@/store/projects/project.selectors";
+import { CreateProjectInput, UpdateProjectInput } from "@/store/projects/type";
 
 const DescSection = ({ id, form_type }: DescSectionProps) => {
   const [length, setLength] = useState<number>(0);
-  const { selectedProject } = useProjectStore();
+  const selectedProject = useSelectedProject();
   const {
     register,
     formState: { errors },
-  } = useFormContext<ProjectInputs>();
+  } = useFormContext<CreateProjectInput | UpdateProjectInput>();
   const defaultDesc = () => {
     if (form_type === "update_project") {
       return selectedProject?.description;

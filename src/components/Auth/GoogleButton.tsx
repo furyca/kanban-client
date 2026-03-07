@@ -1,15 +1,10 @@
-import useAuthStore from "@/store/authStore";
-import useUIStatusStore from "@/store/uiStatusStore";
-import useUserStore from "@/store/userStore";
-import { baseURL } from "@/utils/env";
-import { CredentialResponse, GoogleLogin } from "@react-oauth/google";
+import useAuthStore from "@/store/auth/auth.store";
+import { GoogleLogin } from "@react-oauth/google";
 
 type TextType = "signin_with" | "signup_with" | "continue_with" | "signin" | undefined;
 
 const GoogleButton = ({ text }: { text: TextType }) => {
-  const { setToken } = useAuthStore();
-  const { setUser } = useUserStore();
-  const { setLoading } = useUIStatusStore();
+  const googleLogin = useAuthStore((state) => state.googleLogin);
 
   const width = () => {
     if (window.innerWidth > 1024) {
@@ -21,41 +16,12 @@ const GoogleButton = ({ text }: { text: TextType }) => {
     return 200;
   };
 
-  const handleLoginSuccess = async (credentialResponse: CredentialResponse) => {
-    setLoading(true);
-    const response = await fetch(`${baseURL}/googleAuth`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify({ token: credentialResponse.credential }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Response status: ${response.status}`);
-    }
-
-    const json = await response.json();
-
-    if (json) {
-      setToken(json.token);
-      setUser({...json.user});
-    }
-    setLoading(false);
-  };
-
-  const handleLoginError = () => {
-    console.log("Login Failed");
-  };
-  
   return (
     <div className="mx-auto">
       <GoogleLogin
-        onSuccess={handleLoginSuccess}
-        onError={handleLoginError}
+        onSuccess={googleLogin}
+        onError={() => console.log("Login Failed")}
         auto_select
-        locale="en"
         shape="pill"
         width={width()}
         text={text}

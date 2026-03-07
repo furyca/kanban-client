@@ -1,37 +1,38 @@
 import { ChevronDown, ChevronUp, Edit, Trash } from "lucide-react";
-import useModalStore from "@/store/modalStore";
-import useTaskStore, { TaskProps } from "@/store/taskStore";
 import { useDraggable } from "@dnd-kit/core";
 import { format } from "date-fns";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "../ui/button";
+import useModalStore from "@/store/modal/modal.store";
+import { useTaskSubtasks } from "@/store/tasks/task.selectors";
+import { TaskProps } from "@/store/tasks/type";
 
-const Task = ({ id, title, subtasks, status, created_at, updated_at, index, ...props }: TaskProps) => {
+const Task = ({ id, title, created_at, updated_at }: TaskProps) => {
   const [expanded, setExpanded] = useState(false);
   const [contentHeight, setContentHeight] = useState(0);
-  const content = useRef<HTMLDivElement>(null);
-  const { setModal } = useModalStore();
-  const { setActiveTask, setCurrentTaskStatus } = useTaskStore();
-  const { attributes, listeners, setNodeRef, transform } = useDraggable({ id });
-  const creation_date = new Date(created_at);
-  const update_date = new Date(updated_at);
-  const formattedCreationDate = format(creation_date, "d MMM yyyy HH:mm");
-  const formattedUpdateDate = format(update_date, "d MMM yyyy HH:mm");
-
+  const contentRef = useRef<HTMLDivElement>(null);
+  const setModal = useModalStore((s) => s.setModal);
+  const subtasks = useTaskSubtasks(id);
+  const setCurrentTaskId = useModalStore((s) => s.setCurrentTaskId);
+  const { attributes, listeners, setNodeRef, transform } = useDraggable({
+    id,
+  });
   const style = transform ? { opacity: 0 } : undefined;
+  const formattedCreationDate = format(new Date(created_at), "d MMM yyyy HH:mm");
+  const formattedUpdateDate = format(new Date(updated_at), "d MMM yyyy HH:mm");
 
   const openDeleteTaskModal = () => {
-    setActiveTask({ id, title, subtasks, status, created_at, updated_at, ...props });
+    setCurrentTaskId(id);
     setModal("delete_task");
   };
+
   const openEditTaskModal = () => {
-    setActiveTask({ id, title, subtasks, status, created_at, updated_at, ...props });
-    setCurrentTaskStatus(status);
+    setCurrentTaskId(id);
     setModal("update_task");
   };
 
   useEffect(() => {
-    setContentHeight(content.current?.scrollHeight as number);
+    setContentHeight(contentRef.current?.scrollHeight ?? 0);
   }, [subtasks?.length]);
 
   return (
@@ -40,42 +41,50 @@ const Task = ({ id, title, subtasks, status, created_at, updated_at, index, ...p
       style={style}
       {...listeners}
       {...attributes}
-      className={`cursor-grab active:cursor-grabbing border-zinc-500 border rounded-lg p-2 bg-white/10 select-none mt-5 first:mt-1 group relative`}
       data-testid="task"
+      className="cursor-grab active:cursor-grabbing border-zinc-500 border rounded-lg p-2 bg-white/10 select-none mt-5 first:mt-1 group relative"
     >
+      {/* HEADER */}
       <div className="flex justify-between items-center mb-2">
         <h3 className="font-bold truncate">{title}</h3>
-        <div className="flex gap-1 transition-all duration-200 ease-in-out opacity-100 md:opacity-0 group-hover:opacity-100">
+
+        <div className="flex gap-1 opacity-100 md:opacity-0 group-hover:opacity-100 transition-all">
           <Button
             variant="ghost"
             size="sm"
             onClick={openEditTaskModal}
-            data-testid={`open-update-task-modal-${index}`}
             title="Edit Task"
-            className="p-1.5 h-fit border-none shadow-none rounded-sm bg-violet-500 text-white md:bg-transparent md:text-violet-400 hover:bg-violet-600 hover:text-white"
+            data-testid={`open-update-task-modal-${id}`}
+            className="p-1.5 h-fit rounded-sm bg-violet-500 text-white md:bg-transparent md:text-violet-400 hover:bg-violet-600 hover:text-white"
           >
             <Edit size={16} strokeWidth={1.5} />
           </Button>
+
           <Button
             variant="ghost"
             size="sm"
-            className="p-1.5 h-fit border-none shadow-none rounded-sm bg-red-900 text-white md:bg-transparent md:text-red-600 hover:bg-red-800 hover:text-white"
             onClick={openDeleteTaskModal}
             title="Delete Task"
-            data-testid={`open-delete-task-modal-${index}`}
+            data-testid={`open-delete-task-modal-${id}`}
+            className="p-1.5 h-fit rounded-sm bg-red-900 text-white md:bg-transparent md:text-red-600 hover:bg-red-800 hover:text-white"
           >
             <Trash size={16} strokeWidth={1.5} />
           </Button>
         </div>
       </div>
+
+      {/* SUBTASKS */}
       <div
-        style={{ maxHeight: expanded ? contentHeight : 0, opacity: expanded ? 100 : 0 }}
-        className={`transition-all duration-500 delay-75 overflow-hidden pb-2`}
-        ref={content}
+        ref={contentRef}
+        style={{
+          maxHeight: expanded ? contentHeight : 0,
+          opacity: expanded ? 1 : 0,
+        }}
+        className="transition-all duration-500 delay-75 overflow-hidden pb-2"
       >
-        {subtasks && subtasks?.length > 0 ? (
-          subtasks.map(({ text, subtask_id, completed }) => (
-            <p key={subtask_id} className={`mb-1 last:mb-3 text-sm line-clamp-3 text-wrap ${completed && "line-through"}`}>
+        {subtasks?.length ? (
+          subtasks.map(({ id, text, completed }) => (
+            <p key={id} className={`mb-1 last:mb-3 text-sm ${completed ? "line-through" : ""}`}>
               - {text}
             </p>
           ))
@@ -83,15 +92,19 @@ const Task = ({ id, title, subtasks, status, created_at, updated_at, index, ...p
           <p className="mb-2 text-sm">No subtasks</p>
         )}
       </div>
+
+      {/* DATES */}
       <div className="flex justify-between items-center mb-2 text-xs font-bold tracking-tight">
         <p title="Created">{formattedCreationDate}</p>
         <p title="Updated">{formattedUpdateDate}</p>
       </div>
+
+      {/* EXPAND BUTTON */}
       <div className="absolute z-[1] w-full left-0 -bottom-4 cursor-auto">
         <div
-          className="bg-indigo-950/80 w-8 h-8 rounded-full mx-auto flex justify-center items-center cursor-pointer border border-violet-700 transition-transform delay-75 duration-300 hover:scale-125 hover:border-2"
-          onClick={() => setExpanded((prev) => !prev)}
+          onClick={() => setExpanded((p) => !p)}
           title={expanded ? "Collapse" : "Expand"}
+          className="bg-indigo-950/80 w-8 h-8 rounded-full mx-auto flex justify-center items-center cursor-pointer border border-violet-700 transition-transform hover:scale-125 hover:border-2"
         >
           {expanded ? <ChevronUp /> : <ChevronDown />}
         </div>

@@ -1,30 +1,22 @@
-import useModalStore from "@/store/modalStore";
-import useProjectStore from "@/store/projectStore";
-import { FormProvider,useForm } from "react-hook-form";
-import { ProjectInputs } from "./type";
+import { FormProvider, useForm } from "react-hook-form";
 import useClickOutside from "@/hooks/useClickOutside";
-import { LegacyRef, useEffect } from "react";
+import { LegacyRef } from "react";
 import FormHeader from "../FormSections/FormHeader";
 import TitleSection from "../FormSections/TitleSection";
 import SubmitButton from "../FormElements/SubmitButton";
 import DescSection from "../FormSections/DescSection";
 import StatusField from "../FormSections/StatusField";
-import useFormSubmit from "@/hooks/useFormSubmit";
+import useProjectStore from "@/store/projects/project.store";
+import { CreateProjectInput } from "@/store/projects/type";
 
 const CreateProjectModal = () => {
-  const { setModal } = useModalStore();
-  const { setProjects } = useProjectStore();
   const ref = useClickOutside();
-  const { onSubmit, res, loading } = useFormSubmit({
-    url: "/create_project",
-    method: "POST",
-    buildBody: (data) => ({ ...data }),
-  });
-  const methods = useForm<ProjectInputs>({
+  const { createProject, loadingProjects } = useProjectStore();
+  const methods = useForm<CreateProjectInput>({
     mode: "onChange",
     defaultValues: {
       description: "",
-      status: [
+      statuses: [
         {
           id: window.crypto.randomUUID(),
           text: "To do",
@@ -41,18 +33,11 @@ const CreateProjectModal = () => {
     },
   });
 
-  useEffect(() => {
-    if (res?.projects) {
-      setProjects(res.projects);
-      setModal("none");
-    }
-  }, [res?.projects]);
-
   return (
     <FormProvider {...methods}>
       <form
         method="POST"
-        onSubmit={methods.handleSubmit(onSubmit)}
+        onSubmit={methods.handleSubmit(createProject)}
         className="flex flex-col rounded-lg h-5/6 w-11/12 md:w-2/3 lg:w-1/2 overflow-auto bg-slate-800 border-2 border-gray-500 text-slate-400 shadow-card"
         data-testid="create-project-modal"
         ref={ref as LegacyRef<HTMLFormElement>}
@@ -66,7 +51,7 @@ const CreateProjectModal = () => {
         />
         <DescSection id="create-project-description" form_type="create_project" />
         <StatusField />
-        <SubmitButton id="confirm-create-project" text="Create" loading={loading} />
+        <SubmitButton id="confirm-create-project" text="Create" loading={loadingProjects} />
       </form>
     </FormProvider>
   );

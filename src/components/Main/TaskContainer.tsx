@@ -1,81 +1,89 @@
-import useModalStore from "@/store/modalStore";
-import useTaskStore from "@/store/taskStore";
 import { Minus, Plus } from "lucide-react";
 import { DragOverlay, useDroppable } from "@dnd-kit/core";
 import Task from "./Task";
 import { Button } from "../ui/button";
+import useModalStore from "@/store/modal/modal.store";
+import useTaskStore from "@/store/tasks/task.store";
+import { useGrabbedTask, useTasksByStatus } from "@/store/tasks/task.selectors";
 import SkeletonTask from "./SkeletonTask";
-import useProjectStore from "@/store/projectStore";
+import { TaskProps } from "@/store/tasks/type";
 
-const TaskContainer = ({ title, index, id }: { title: string; index: number; id: string }) => {
-  const { setModal } = useModalStore();
-  const { activeTask, tasks, loadingTasks, setCurrentTaskStatus } = useTaskStore();
-  const { setCurrentStatus, selectedProject } = useProjectStore();
+const TaskContainer = ({ id, text }: { id: string; text: string }) => {
+  const setModal = useModalStore((s) => s.setModal);
+  const tasks = useTasksByStatus(id);
+  const grabbedTask = useGrabbedTask();
+  const grabbedTaskID = useTaskStore((s) => s.grabbedTaskID);
+  const setCurrentStatusId = useModalStore((s) => s.setCurrentStatusId);
+  const loading = useTaskStore((s) => s.loadingTasks);
   const { isOver, setNodeRef } = useDroppable({
-    id,
+    id: id,
     data: {
-      status: id,
-      accepts: tasks.map((task) => task.id),
+      statusID: id,
+      accepts: tasks.map((t) => t.id),
     },
-  });
-
-  const style = {
-    color: isOver ? "#3a52c9" : undefined,
-  };
+  });  
 
   const openAddTaskModal = () => {
-    setCurrentTaskStatus(id);
+    setCurrentStatusId(id);
     setModal("create_task");
   };
 
   const openRemoveStatusModal = () => {
-    setCurrentStatus({ id, text: title, project_id: selectedProject?.id || "" });
+    setCurrentStatusId(id);
     setModal("remove_status");
-  };
+  };  
 
   return (
     <div
       ref={setNodeRef}
-      style={style}
+      data-testid={`task-container-${id}`}
       className="border border-[#3a52c93a] rounded-lg w-96 flex-shrink-0 h-full overflow-y-auto overflow-x-hidden self-start"
-      data-testid={`task-container-${index}`}
+      style={{ color: isOver ? "#3a52c9" : undefined }}
     >
+      {/* HEADER */}
       <div
+        title={text}
         className="flex justify-between items-center sticky top-0 backdrop-blur-sm p-2 z-[2] bg-zinc-900/50 border-b-2 border-slate-600 tracking-wide"
-        title={title}
       >
-        <h3 className="text-base font-bold truncate">{title}</h3>
+        <h3 className="text-base font-bold truncate">{text}</h3>
+
         <div>
           <Button
             variant="ghost"
             className="p-2 h-fit"
             onClick={openRemoveStatusModal}
-            data-testid={`open-delete-status-modal-${id}`}
             title="Remove Status"
+            data-testid={`open-delete-status-modal-${id}`}
           >
             <Minus />
           </Button>
+
           <Button
             variant="ghost"
             className="p-2 h-fit"
             onClick={openAddTaskModal}
-            data-testid={`open-create-task-modal-${index}`}
             title="Add Task"
+            data-testid={`open-create-task-modal-${id}`}
           >
             <Plus />
           </Button>
         </div>
       </div>
-      <div className="p-1">
-        {loadingTasks ? (
-          <SkeletonTask />
-        ) : (
-          tasks
-            .filter((task) => task.status === id)
-            .map((task, index) => <Task key={task.id} index={index} {...task} />)
-        )}
-        <DragOverlay dropAnimation={null}>{activeTask && <Task {...activeTask} />}</DragOverlay>
-      </div>
+
+      {/* TASK LIST */}
+      {loading ? (
+        <SkeletonTask />
+      ) : (
+        <div className="p-1">
+          {tasks.map((task) => (
+            <Task key={task.id} {...task} />
+          ))}
+
+          <DragOverlay dropAnimation={null}>
+            {grabbedTaskID && grabbedTaskID === id && <Task {...(grabbedTask as TaskProps)} />}
+          </DragOverlay>
+        </div>
+      )}
     </div>
   );
 };

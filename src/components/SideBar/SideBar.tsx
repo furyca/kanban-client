@@ -1,20 +1,24 @@
 import { ChevronLeft, ChevronRight, LoaderCircle, Plus } from "lucide-react";
 import { AvatarIcon } from "@radix-ui/react-icons";
-import useProjectStore from "@/store/projectStore";
-import useModalStore from "@/store/modalStore";
+import useModalStore from "@/store/modal/modal.store";
 import { useState } from "react";
 import SideBarButton from "./SideBarButton";
 import LogOut from "./LogOut";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import useUserStore from "@/store/userStore";
+import useAuthStore from "@/store/auth/auth.store";
+import useProjectStore from "@/store/projects/project.store";
 
 const SideBar = () => {
   const [collapsed, setCollapsed] = useState(window.innerWidth > 768 ? false : true);
-  const { projects, setSelectedProject, loadingProjects } = useProjectStore((state) => state);
-  const { setModal } = useModalStore();
+  const projects = useProjectStore((state) => state.projects);
+  const setModal = useModalStore((s) => s.setModal);
+  const clearContext = useModalStore((s) => s.clearContext);
   const navigate = useNavigate();
-  const { user } = useUserStore();
+  const { user } = useAuthStore();
+  const loadingProjects = useProjectStore((s) => s.loadingProjects);
+  const loadingAuth = useAuthStore((s) => s.loadingAuth);
+  const loading = loadingProjects || loadingAuth;
 
   const handleCollapse = () => {
     setCollapsed((prev) => !prev);
@@ -35,7 +39,7 @@ const SideBar = () => {
         >
           {!collapsed && <h1>Projects</h1>}
           <Button
-            onClick={() => setSelectedProject(null)}
+            onClick={() => clearContext()}
             className="tracking-wider underline transition-all duration-100 underline-offset-1 hover:underline-offset-2 bg-transparent hover:bg-transparent text-white py-0"
             title="All Projects"
           >
@@ -43,11 +47,11 @@ const SideBar = () => {
           </Button>
         </div>
         <div className="flex flex-col mb-14">
-          {loadingProjects ? (
+          {loading ? (
             <LoaderCircle className="animate-spin mx-auto mt-2" />
           ) : (
             projects.map((project, index) => {
-              return <SideBarButton key={index} index={index} collapsed={collapsed} {...project} />;
+              return <SideBarButton key={index} collapsed={collapsed} id={project.id} title={project.title} />;
             })
           )}
         </div>
@@ -80,7 +84,7 @@ const SideBar = () => {
               <AvatarIcon />
             )}
           </Button>
-          <LogOut collapsed={collapsed} />
+          <LogOut collapsed={collapsed} disabled={!user} />
           <Button
             variant="ghost"
             onClick={handleCollapse}

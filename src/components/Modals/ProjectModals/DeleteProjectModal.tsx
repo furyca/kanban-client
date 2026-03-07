@@ -1,50 +1,24 @@
-import useProjectStore from "@/store/projectStore";
-import useModalStore from "@/store/modalStore";
-import { baseURL } from "@/utils/env";
+import useModalStore from "@/store/modal/modal.store";
 import useClickOutside from "@/hooks/useClickOutside";
-import { LegacyRef, useRef, useState } from "react";
+import { LegacyRef } from "react";
 import { LoaderCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useSelectedProject } from "@/store/projects/project.selectors";
+import useProjectStore from "@/store/projects/project.store";
 
 const DeleteProjectModal = () => {
-  const [loading, setLoading] = useState(false);
-  const { setProjects, selectedProject, setSelectedProject } = useProjectStore();
-  const { setModal } = useModalStore();
-  const serverError = useRef<null | string>(null);
+  const selectedProject = useSelectedProject();
+  const clearContext = useModalStore((state) => state.clearContext);
+  const deleteProject = useProjectStore((state) => state.deleteProject);
+  const loadingProjects = useProjectStore((state) => state.loadingProjects);
   const ref = useClickOutside();
 
   const handleYesClick = async () => {
-    setLoading(true);
-    try {
-      const token = localStorage.getItem("token");
-      const response = await fetch(`${baseURL}/delete_project`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        credentials: "include",
-        body: JSON.stringify({ id: selectedProject?.id }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Response status: ${response.status}`);
-      }
-      const json = await response.json();
-      if (json) {
-        setProjects([...json.projects]);
-        setModal("none");
-        setSelectedProject(null);
-      }
-    } catch (e: any) {
-      serverError.current = e.message;
-    } finally {
-      setLoading(false);
-    }
+    deleteProject(selectedProject!.id);
   };
 
   const handleNoClick = () => {
-    setModal("none");
+    clearContext();
   };
   return (
     <div
@@ -59,7 +33,7 @@ const DeleteProjectModal = () => {
         <Button
           className="h-10 w-24 bg-zinc-800 hover:bg-zinc-900 text-base rounded-lg"
           onClick={handleNoClick}
-          disabled={loading}
+          disabled={loadingProjects}
         >
           Cancel
         </Button>
@@ -67,9 +41,9 @@ const DeleteProjectModal = () => {
           className="h-10 w-28 bg-red-600 hover:bg-red-800 text-base font-bold tracking-wide rounded-lg"
           onClick={handleYesClick}
           data-testid="delete-project-confirm"
-          disabled={loading}
+          disabled={loadingProjects}
         >
-          {loading && <LoaderCircle className="animate-spin" />}
+          {loadingProjects && <LoaderCircle className="animate-spin" />}
           Yes, delete
         </Button>
       </div>

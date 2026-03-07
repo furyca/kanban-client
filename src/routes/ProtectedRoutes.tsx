@@ -1,17 +1,10 @@
 import { Navigate, Outlet } from "react-router-dom";
-import useAuthStore from "@/store/authStore";
-import { useEffect } from "react";
+import useAuthStore from "@/store/auth/auth.store";
 
 const ProtectedRoutes = () => {
-  const { token, checkAuth, isAuthChecked } = useAuthStore();
+  const { accessToken } = useAuthStore();
 
-  useEffect(() => {
-    checkAuth();
-  }, []);
-
-  if (!isAuthChecked) return null; // loading
-
-  return token ? <Outlet /> : <Navigate to="/login" replace />;
+  return accessToken ? <Outlet /> : <Navigate to="/login" replace />;
 
 };
 

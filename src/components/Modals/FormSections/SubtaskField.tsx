@@ -2,19 +2,20 @@ import { Plus } from "lucide-react";
 import Label from "@/components/Modals/FormElements/Label";
 import SubtaskInput from "../FormElements/SubtaskInput";
 import { useFieldArray, useFormContext } from "react-hook-form";
-import { TaskInputs } from "../TaskModals/type";
 import { Button } from "@/components/ui/button";
+import { CreateTaskInput, UpdateTaskInput } from "@/store/tasks/type";
 
 const SubtaskField = ({ form_type }: { form_type: string }) => {
-  const { control } = useFormContext<TaskInputs>();
-  const { fields, append, remove } = useFieldArray<TaskInputs>({ name: "subtasks", control });
+  const { control } = useFormContext<CreateTaskInput | UpdateTaskInput>();
+  const { fields, append, remove } = useFieldArray<CreateTaskInput | UpdateTaskInput>({ name: "subtasks", control });
 
   const handleAppend = () => {
     append({
-      subtask_id: window.crypto.randomUUID(),
+      id: window.crypto.randomUUID(),
       text: "",
       task_id: "",
       completed: false,
+      _new: true
     });
   };  
 
@@ -25,7 +26,7 @@ const SubtaskField = ({ form_type }: { form_type: string }) => {
         {fields.map((field, index: number) => (
           <SubtaskInput
             key={field.id}
-            subtask_id={field.subtask_id}
+            subtask_id={field.id}
             index={index}
             text={field.text}
             form_type={form_type}

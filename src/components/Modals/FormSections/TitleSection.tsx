@@ -1,16 +1,17 @@
 import { useState } from "react";
-import useProjectStore from "@/store/projectStore";
-import useTaskStore from "@/store/taskStore";
 import Label from "@/components/Modals/FormElements/Label";
 import { titleRules } from "../formRules";
 import InputInfo from "../FormElements/InputInfo";
 import { TitleInputProps } from "./type";
 import { FieldValues, RegisterOptions, useFormContext } from "react-hook-form";
+import { useSelectedProject } from "@/store/projects/project.selectors";
+import { useActiveTask } from "@/store/tasks/task.selectors";
 
 const TitleSection = ({ id, label, message, form_type }: TitleInputProps) => {
   const [titleLength, setTitleLength] = useState<number>(0);
-  const { selectedProject } = useProjectStore();
-  const { activeTask } = useTaskStore();
+  const selectedProject = useSelectedProject();
+  const activeTask = useActiveTask();
+
   const {
     register,
     formState: { errors },
