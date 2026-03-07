@@ -1,51 +1,27 @@
-import useProjectStore, { ProjectProps } from "@/store/projectStore";
-import useModalStore from "@/store/modalStore";
-import { baseURL } from "@/utils/env";
+import useModalStore from "@/store/modal/modal.store";
 import useClickOutside from "@/hooks/useClickOutside";
-import { LegacyRef, useRef, useState } from "react";
+import { LegacyRef } from "react";
 import { LoaderCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useSelectedProject } from "@/store/projects/project.selectors";
+import useProjectStore from "@/store/projects/project.store";
+import { useModalStatusId } from "@/store/modal/modal.selectors";
 
 const RemoveStatusModal = () => {
-  const [loading, setLoading] = useState(false);
-  const { setProjects, selectedProject, clearStatus, currentStatus, setSelectedProject } = useProjectStore();
-  const { setModal } = useModalStore();
+  const currentStatusID = useModalStatusId();
+  const selectedProject = useSelectedProject();
+  const currentStatus = selectedProject?.statuses.find((s) => s.id === currentStatusID);
+  const clearContext = useModalStore((s) => s.clearContext);
+  const deleteStatus = useProjectStore((s) => s.deleteStatus);
+  const loadingProjects = useProjectStore((s) => s.loadingProjects);
   const ref = useClickOutside();
-  const serverError = useRef<null | string>(null);
 
-  const handleYesClick = async () => {
-    setLoading(true);
-    try {
-      const token = localStorage.getItem("token");
-      const response = await fetch(`${baseURL}/remove_status`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        credentials: "include",
-        body: JSON.stringify({ id: selectedProject?.id, status: currentStatus }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Response status: ${response.status}`);
-      }
-      const json = await response.json();
-      if (json) {
-        setProjects(json.projects);
-        setSelectedProject(json.projects.find((project: ProjectProps) => project.id === selectedProject?.id));
-        clearStatus();
-        setModal("none");
-      }
-    } catch (e: any) {
-      serverError.current = e.message;
-    } finally {
-      setLoading(false);
-    }
+  const handleYesClick = async () => {   
+    deleteStatus(currentStatusID!, selectedProject!.id);
   };
 
   const handleNoClick = () => {
-    setModal("none");
+    clearContext();
   };
   return (
     <div
@@ -60,7 +36,7 @@ const RemoveStatusModal = () => {
         <Button
           className="h-10 w-24 bg-zinc-800 hover:bg-zinc-900 text-base rounded-lg"
           onClick={handleNoClick}
-          disabled={loading}
+          disabled={loadingProjects}
         >
           Cancel
         </Button>
@@ -68,9 +44,9 @@ const RemoveStatusModal = () => {
           className="h-10 w-28 bg-red-600 hover:bg-red-800 text-base font-bold tracking-wide rounded-lg"
           onClick={handleYesClick}
           data-testid="delete-project-confirm"
-          disabled={loading}
+          disabled={loadingProjects}
         >
-          {loading && <LoaderCircle className="animate-spin" />}
+          {loadingProjects && <LoaderCircle className="animate-spin" />}
           Yes, delete
         </Button>
       </div>

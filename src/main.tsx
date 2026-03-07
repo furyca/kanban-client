@@ -10,6 +10,7 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import AuthRoutes from "./routes/AuthRoutes";
 import ProtectedRoutes from "./routes/ProtectedRoutes";
 import Home from "./routes/Home";
+import Demo from "./routes/Demo";
 
 const CLIENT_ID = "908384412110-vkaoej6m1ef82drrise1sl06nct5hqur.apps.googleusercontent.com";
 
@@ -23,6 +24,7 @@ createRoot(document.getElementById("root")!).render(
             <Route element={<AuthRoutes />}>
               <Route path="login" element={<Login />} />
               <Route path="signup" element={<SignUp />} />
+              <Route path="demo" element={<Demo />} />
             </Route>
             <Route element={<ProtectedRoutes />}>
               <Route path="dashboard" element={<Dashboard />} />

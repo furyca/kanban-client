@@ -1,4 +1,3 @@
-import useProjectStore from "@/store/projectStore";
 import {
   DndContext,
   DragEndEvent,
@@ -8,37 +7,49 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import { MouseEvent, TouchEvent, useCallback, useRef, useState } from "react";
-import { baseURL } from "@/utils/env";
-import useTaskStore, { TaskProps } from "@/store/taskStore";
+import { MouseEvent, useCallback, useRef, useState } from "react";
 import TaskContainer from "./TaskContainer";
 import { debounce } from "@/utils/debounce";
 import { Button } from "../ui/button";
-import useModalStore from "@/store/modalStore";
+import useModalStore from "@/store/modal/modal.store";
+import { apiFetch } from "@/utils/apiClient";
+import { useSelectedProject } from "@/store/projects/project.selectors";
+import useTaskStore from "@/store/tasks/task.store";
+import { useGrabbedTask } from "@/store/tasks/task.selectors";
+import { TaskProps } from "@/store/tasks/type";
+import useProjectStore from "@/store/projects/project.store";
 
 const StatusArea = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const pendingTaskUpdatesRef = useRef<Record<string, string>>({});
-  const oldTasksRef = useRef<TaskProps[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
   const [isTaskDragging, setIsTaskDragging] = useState(false);
   const [lockUI, setLockUI] = useState(false);
-  const serverError = useRef<null | string>(null);
-  const { tasks, setTasks, activeTask, setActiveTask } = useTaskStore();
-  const { selectedProject } = useProjectStore();
-  const { setModal } = useModalStore();
+  const selectedProject = useSelectedProject();
+  const setModal = useModalStore((s) => s.setModal);
+  const setCurrentProjectID = useModalStore((s) => s.setCurrentProjectId);
+  const selectedProjectID = useProjectStore((s) => s.selectedProjectID);
+  const grabbedTaskID = useTaskStore((s) => s.grabbedTaskID);
+  const setGrabbedTaskID = useTaskStore((s) => s.setGrabbedTaskID);
+  const grabbedTask = useGrabbedTask();
+  const setProjectTasks = useTaskStore((s) => s.setProjectTasks);
+  const projectTasks = useTaskStore((s) => s.projectTasks);
+  const setAllTasks = useTaskStore((s) => s.setAllTasks);
+  const allTasks = useTaskStore((s) => s.allTasks);
+  const rollbackSnapshotRef = useRef<TaskProps[] | null>(null);
+  const impl = useProjectStore((s) => s.impl);
   const sensors = useSensors(
     useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 1,
-      },
-    })
+      activationConstraint: { distance: 1 },
+    }),
   );
 
-  //side scroll
+  /* ---------------- side scroll during drag ---------------- */
+
   const SCROLL_SPEED = 10;
+
   const handleDragMove = (event: DragMoveEvent) => {
     if (!isTaskDragging || !containerRef.current) return;
 
@@ -52,7 +63,8 @@ const StatusArea = () => {
     }
   };
 
-  //grab and scroll
+  /* ---------------- grab & scroll ---------------- */
+
   const handleMouseDown = (e: MouseEvent<HTMLDivElement>) => {
     if (isTaskDragging || !containerRef.current) return;
     setIsDragging(true);
@@ -61,127 +73,122 @@ const StatusArea = () => {
   };
 
   const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
-    if (!isDragging || activeTask || !containerRef.current) return;
+    if (!isDragging || grabbedTaskID || !containerRef.current) return;
     const walk = e.pageX - startX;
     containerRef.current.scrollLeft = scrollLeft - walk;
   };
-  const handleMouseUp = () => setIsDragging(false);
 
-  //touch and scroll
-  const handleTouchStart = (e: TouchEvent<HTMLDivElement>) => {
-    setIsDragging(true);
-    if (!containerRef.current) return;
-    setStartX(e.touches[0].clientX - containerRef.current.offsetLeft);
-    setScrollLeft(containerRef.current.scrollLeft);
-  };
+  const stopDragging = () => setIsDragging(false);
 
-  const handleTouchMove = (e: TouchEvent<HTMLDivElement>) => {
-    if (!isDragging || !containerRef.current) return;
-    const x = e.touches[0].clientX - containerRef.current.offsetLeft;
-    const walk = (x - startX) * 2;
-    containerRef.current.scrollLeft = scrollLeft - walk;
-  };
-
-  const handleTouchEnd = () => setIsDragging(false);
+  /* ---------------- debounced submit ---------------- */
 
   const debouncedSubmit = useCallback(
     debounce(async () => {
       const updates = { ...pendingTaskUpdatesRef.current };
-      if (Object.keys(updates).length === 0) return;
+      if (Object.keys(updates).length === 0 || !selectedProject) return;
 
       setLockUI(true);
       pendingTaskUpdatesRef.current = {};
 
-      const oldTasks = oldTasksRef.current;
       try {
-        const res = await fetch(`${baseURL}/bulk_update_tasks`, {
+        await apiFetch("/bulk_update_tasks", {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
           body: JSON.stringify({
             updates,
-            project_id: selectedProject?.id,
+            project_id: selectedProject.id,
           }),
         });
-
-        if (!res.ok) throw new Error(`Status: ${res.status}`);
-        const json = await res.json();
-        setTasks(json.tasks);
-      } catch (err: any) {
-        serverError.current = err.message;
-        setTasks(oldTasks); // rollback
+      } catch {
+        setProjectTasks(rollbackSnapshotRef.current!);
       } finally {
+        rollbackSnapshotRef.current = null;
         setLockUI(false);
-        oldTasksRef.current = [];
       }
     }, 1000),
-    [selectedProject]
+    [selectedProject?.id],
   );
 
-  const handleDragEnd = (event: DragEndEvent) => {
-    setIsTaskDragging(false);
-    if (lockUI) return; // lock UI if updating
-
-    const { active, over } = event;
-    if (!over || !over.data.current?.accepts.includes(active.id)) {
-      setActiveTask(null);
-      return;
-    }
-
-    const newStatus = over.data.current?.status;
-    if (!activeTask || newStatus === activeTask.status) {
-      setActiveTask(null);
-      return;
-    }
-
-    const updatedTasks = tasks.map((task) => (task.id === activeTask.id ? { ...task, status: newStatus } : task));
-
-    oldTasksRef.current = tasks; // save old tasks for rollback
-    setTasks(updatedTasks);
-
-    // accumulate updates
-    pendingTaskUpdatesRef.current[activeTask.id] = newStatus;
-    setActiveTask(null);
-    debouncedSubmit();
-  };
+  /* ---------------- drag handlers ---------------- */
 
   const handleDragStart = (event: DragStartEvent) => {
+    if (lockUI) return;
     setIsTaskDragging(true);
-    const task = tasks.find((task: TaskProps) => task.id === event.active.id) as TaskProps;
-    setActiveTask(task);
+    setGrabbedTaskID(event.active.id as string);
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    if (!rollbackSnapshotRef.current) {
+      rollbackSnapshotRef.current = structuredClone(projectTasks);
+    }
+
+    setIsTaskDragging(false);
+    if (lockUI) return;
+
+    const { over } = event;
+    if (!over) {
+      setGrabbedTaskID(null);
+      return;
+    }
+
+    const newStatusId = over.data.current?.statusID;
+
+    if (!grabbedTaskID || newStatusId === grabbedTask?.statusID) {
+      setGrabbedTaskID(null);
+      return;
+    }
+
+    // optimistic update
+    if (grabbedTask && newStatusId) {
+      const updatedTasks = projectTasks.map((task) =>
+        task.id === grabbedTaskID ? { ...task, statusID: newStatusId } : task,
+      );
+      setProjectTasks(updatedTasks);
+      setAllTasks({
+        ...allTasks,
+        [selectedProject!.id]: updatedTasks,
+      });
+      if (impl.implementation === "local") {
+        localStorage.setItem("tasks", JSON.stringify(updatedTasks));
+      }
+    }
+
+    pendingTaskUpdatesRef.current[grabbedTaskID] = newStatusId;
+
+    setGrabbedTaskID(null);
+    if (impl.implementation === "api") {
+      debouncedSubmit();
+    }
+  };
+
+  const openAddStatusModal = () => {
+    setCurrentProjectID(selectedProjectID);
+    setModal("add_status");
   };
 
   return (
     <DndContext
+      sensors={sensors}
       onDragStart={window.innerWidth > 768 ? handleDragStart : undefined}
       onDragEnd={window.innerWidth > 768 ? handleDragEnd : undefined}
       onDragMove={window.innerWidth > 768 ? handleDragMove : undefined}
     >
       <div
         ref={containerRef}
-        className="flex flex-row absolute left-0 right-0 overflow-y-hidden gap-1 overflow-x-auto p-1 h-[calc(100%-12px)] active:cursor-grabbing select-none"
+        className="flex flex-row absolute left-0 right-0 overflow-y-hidden gap-1 overflow-x-auto p-1 h-[calc(100%-12px)] select-none"
         onMouseDown={window.innerWidth > 768 ? handleMouseDown : undefined}
         onMouseMove={window.innerWidth > 768 ? handleMouseMove : undefined}
-        onMouseUp={window.innerWidth > 768 ? handleMouseUp : undefined}
-        onMouseLeave={window.innerWidth > 768 ? handleMouseUp : undefined}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
+        onMouseUp={window.innerWidth > 768 ? stopDragging : undefined}
+        onMouseLeave={window.innerWidth > 768 ? stopDragging : undefined}
+        onTouchEnd={stopDragging}
       >
-        {selectedProject?.status && selectedProject?.status.length > 0 ? (
-          <DndContext
-            onDragStart={window.innerWidth > 768 ? handleDragStart : undefined}
-            onDragEnd={window.innerWidth > 768 ? handleDragEnd : undefined}
-            sensors={sensors}
-          >
-            {selectedProject.status.map((status, index) => {
-              return <TaskContainer key={index} index={index} title={status.text} id={status.id} />;
-            })}
-          </DndContext>
+        {selectedProject?.statuses?.length ? (
+          selectedProject.statuses.map((status) => <TaskContainer key={status.id} text={status.text} id={status.id} />)
         ) : (
           <div className="flex flex-col items-center w-full gap-y-4 mt-4">
             <p className="font-bold">There are no status yet</p>
-            <Button variant="secondary" onClick={() => setModal("add_status")}>
+            <Button variant="secondary" onClick={openAddStatusModal}>
               Add status
             </Button>
           </div>

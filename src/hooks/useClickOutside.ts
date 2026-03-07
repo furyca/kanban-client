@@ -1,4 +1,4 @@
-import useModalStore from "@/store/modalStore";
+import useModalStore from "@/store/modal/modal.store";
 import { useEffect, useRef } from "react";
 
 const useClickOutside = () => {

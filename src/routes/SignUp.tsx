@@ -1,63 +1,38 @@
-import { SubmitHandler, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { patterns } from "../utils/patterns";
 import Label from "@/components/Modals/FormElements/Label";
 import { EnvelopeClosedIcon, LockClosedIcon } from "@radix-ui/react-icons";
 import GoogleButton from "@/components/Auth/GoogleButton";
-import { baseURL } from "@/utils/env";
 import { LoaderCircle } from "lucide-react";
-import { useRef } from "react";
 import { Button } from "@/components/ui/button";
-import useAuthStore from "@/store/authStore";
-import useUIStatusStore from "@/store/uiStatusStore";
-
-type SignUpInputs = {
-  email: string;
-  password: string;
-};
+import useAuthStore from "@/store/auth/auth.store";
+import { LoginInputs } from "@/store/auth/type";
+import { useEffect } from "react";
 
 const SignUp = () => {
-  //const [loading, setLoading] = useState(false);
-  const serverError = useRef<null | string>(null);
-  const { token } = useAuthStore();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const loading = useAuthStore((state) => state.loadingAuth);
+  const signup = useAuthStore((state) => state.signup);
+  const signedUp = useAuthStore((state) => state.signedUp);
+  const setSignedUp = useAuthStore((state) => state.setSignedUp);
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<SignUpInputs>();
-  const { loading, setLoading } = useUIStatusStore();
+  } = useForm<LoginInputs>();
 
-
-  const onSubmit: SubmitHandler<SignUpInputs> = async (data) => {
-    setLoading(true);
-    try {
-      const response = await fetch(`${baseURL}/signup`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        credentials: "include",
-        body: JSON.stringify({ ...data }),
-      });
-
-      if (!response.ok) {
-        serverError.current = "Could not sign up.";
-        return;
-      }
-
-      navigate('/login')
-    } catch (e: any) {
-      serverError.current = e.message;
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+    if (signedUp) {
+      setSignedUp(false);
+      navigate("/login");
     }
-  };
+  }, [signedUp]);
+
   return (
     <form
       method="POST"
-      onSubmit={handleSubmit(onSubmit)}
+      onSubmit={handleSubmit(signup)}
       className="w-11/12 mt-5 p-2 md:w-2/3 lg:w-1/3 md:p-6 gap-1 flex flex-col bg-neutral-300 drop-shadow-xl mx-auto text-zinc-800 opacity-75 rounded-sm overflow-y-auto overflow-x-hidden h-[calc(100%-72px)] max-h-fit"
       data-testid="form-sign-up"
     >

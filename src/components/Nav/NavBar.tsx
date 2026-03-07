@@ -1,8 +1,8 @@
-import useAuthStore from "@/store/authStore";
+import useAuthStore from "@/store/auth/auth.store";
 import { Link } from "react-router-dom";
 
 const NavBar = () => {
-  const { token } = useAuthStore();
+  const { accessToken } = useAuthStore();
 
   return (
     <nav className="flex justify-between items-center p-3 bg-zinc-900/50 border-b border-zinc-700 h-12">
@@ -12,7 +12,7 @@ const NavBar = () => {
         </Link>
         {/* {user && <span className="hidden sm:block text-sm font-bold text-slate-300">{user.username}</span>} */}
       </div>
-      {token ? (
+      {accessToken ? (
         <Link to="/dashboard" className="hover:underline underline-offset-2 text-base font-bold">
           Dashboard
         </Link>

@@ -1,14 +1,17 @@
 import Label from "@/components/Modals/FormElements/Label";
 import { Plus } from "lucide-react";
 import StatusInput from "../FormElements/StatusInput";
-import { ProjectField } from "./type";
 import { useFieldArray, useFormContext } from "react-hook-form";
-import { ProjectInputs } from "../ProjectModals/type";
 import { Button } from "@/components/ui/button";
+import { CreateProjectInput, UpdateProjectInput } from "@/store/projects/type";
+import { ProjectField } from "./type";
 
 const StatusField = () => {
-  const { control } = useFormContext<ProjectInputs>();
-  const { fields, append, remove } = useFieldArray<ProjectInputs>({ name: "status", control });
+  const { control } = useFormContext<CreateProjectInput | UpdateProjectInput>();
+  const { fields, append, remove } = useFieldArray<CreateProjectInput | UpdateProjectInput>({
+    name: "statuses",
+    control,
+  });
 
   const handleAppend = () => {
     append({

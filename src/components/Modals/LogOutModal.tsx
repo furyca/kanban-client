@@ -1,31 +1,21 @@
-import useModalStore from "@/store/modalStore";
+import useModalStore from "@/store/modal/modal.store";
 import useClickOutside from "@/hooks/useClickOutside";
-import { LegacyRef, useState } from "react";
-import useProjectStore from "@/store/projectStore";
+import { LegacyRef } from "react";
 import { LoaderCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import useAuthStore from "@/store/authStore";
-import { useNavigate } from "react-router-dom";
+import useAuthStore from "@/store/auth/auth.store";
 import { googleLogout } from "@react-oauth/google";
 
 const LogOutModal = () => {
-  const [loading, setLoading] = useState(false);
-  const { clearToken } = useAuthStore();
-  const { setModal } = useModalStore();
-  const { setSelectedProject } = useProjectStore();
+  const logout = useAuthStore((s) => s.logout);
+  const loading = useAuthStore((s) => s.loadingAuth);
+  const clearContext = useModalStore((s) => s.clearContext);
   const ref = useClickOutside();
-  const navigate = useNavigate();
 
   const handleLogout = async () => {
-    setLoading(true);
-
-    localStorage.removeItem("token");
-    clearToken();
-    setSelectedProject(null);
     googleLogout();
-    setModal("none");
-    navigate("/login");
-    setLoading(false);
+    logout();
+    clearContext();
   };
 
   return (
@@ -39,7 +29,7 @@ const LogOutModal = () => {
       <div className="flex justify-end gap-2 mt-auto pt-4 px-4 text-center">
         <Button
           className="h-10 w-24 bg-zinc-800 hover:bg-zinc-900 text-base rounded-lg"
-          onClick={() => setModal("none")}
+          onClick={() => clearContext()}
           disabled={loading}
         >
           Cancel

@@ -1,52 +1,27 @@
 import useClickOutside from "@/hooks/useClickOutside";
-import useModalStore from "@/store/modalStore";
-import useProjectStore from "@/store/projectStore";
-import useTaskStore from "@/store/taskStore";
-import { baseURL } from "@/utils/env";
-import { LegacyRef, useRef, useState } from "react";
+import useModalStore from "@/store/modal/modal.store";
+import { LegacyRef } from "react";
 import CloseButton from "../FormElements/CloseButton";
 import { LoaderCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useModalTaskId } from "@/store/modal/modal.selectors";
+import useTaskStore from "@/store/tasks/task.store";
+import { useActiveTask } from "@/store/tasks/task.selectors";
 
 const DeleteTaskModal = () => {
-  const [loading, setLoading] = useState(false);
   const ref = useClickOutside();
-  const { setModal } = useModalStore();
-  const { setTasks, activeTask, setActiveTask } = useTaskStore();
-  const { selectedProject } = useProjectStore();
-  const serverError = useRef<null | string>(null);
+  const currentTaskId = useModalTaskId();
+  const clearContext = useModalStore((s) => s.clearContext);
+  const activeTask = useActiveTask();
+  const loadingTasks = useTaskStore((s) => s.loadingTasks);
+  const deleteTask = useTaskStore((s) => s.deleteTask);  
 
   const handleYesClick = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch(`${baseURL}/delete_task`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({ id: activeTask?.id, project_id: selectedProject?.id }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Response status: ${response.status}`);
-      }
-      const json = await response.json();
-      if (json) {
-        setTasks(json.tasks);
-        setModal("none");
-        setActiveTask(null);
-      }
-    } catch (e: any) {
-      serverError.current = e.message;
-    } finally {
-      setLoading(false);
-    }
+    deleteTask(currentTaskId!);
   };
 
   const handleNoClick = () => {
-    setModal("none");
-    setActiveTask(null);
+    clearContext();
   };
   return (
     <div
@@ -86,7 +61,7 @@ const DeleteTaskModal = () => {
         <Button
           className="h-12 bg-zinc-700 hover:bg-zinc-800 text-[16px] px-4"
           onClick={handleNoClick}
-          disabled={loading}
+          disabled={loadingTasks}
         >
           No, Cancel
         </Button>
@@ -94,9 +69,9 @@ const DeleteTaskModal = () => {
           className="bg-red-600 h-12 hover:bg-red-800 text-[16px] px-4"
           onClick={handleYesClick}
           data-testid="delete-task-confirm"
-          disabled={loading}
+          disabled={loadingTasks}
         >
-          {loading && <LoaderCircle className="animate-spin" />}
+          {loadingTasks && <LoaderCircle className="animate-spin" />}
           Yes, Delete
         </Button>
       </div>
